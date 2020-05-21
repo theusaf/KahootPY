@@ -7,6 +7,7 @@ from .src import consts
 
 class client(EventEmitter):
     def __init__(self,proxies,options):
+        super().__init__()
         self._wsHandler = None
         self.token = None
         self.sessionID = None
