@@ -2,15 +2,6 @@ ENDPOINT_URI = "kahoot.it"
 ENDPOINT_PORT = 443
 TOKEN_ENDPOINT = "/reserve/session/"
 CHALLENGE_ENDPOINT = "/rest/challenges/"
-EVAL_ =  "var _ = {" + \
-    "	replace: function() {" + \
-	"		var args = arguments;" + \
-	"		var str = arguments[0];" + \
-	"		return str.replace(args[1], args[2]);" + \
-	"	}" + \
-	"}; " + \
-	"var log = function(){};" + \
-    "return "
 WSS_ENDPOINT = "wss://kahoot.it/cometd/"
 CHANNEL_HANDSHAKE = "/meta/handshake"
 CHANNEL_SUBSCR = "/meta/subscribe"
