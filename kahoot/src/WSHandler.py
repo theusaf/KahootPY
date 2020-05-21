@@ -1,5 +1,5 @@
 import asyncio
-import websockets
+import websocket
 import ssl
 from . import consts
 
