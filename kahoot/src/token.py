@@ -37,7 +37,7 @@ async def requestToken(sessionID,callback,proxy):
     }
     if proxyOptions:
         options.update(proxyOptions)
-    await r = requests.get(uri);
+    r = requests.get(uri);
     if not r.headers.get("x-kahoot-session-token"):
         return callback(None,None,None)
     try:
@@ -104,7 +104,6 @@ def concatTokens(headerToken,challengeToken):
         mod = ord(challengeToken[i % len(challengeToken)])
         decodedChar = char ^ mod
         token += chr(decodedChar)
-    }
     return token;
 # main function
 async def resolve(sessionID,callback,proxy):
@@ -149,7 +148,7 @@ def requestChallenge(sessionID,callback,proxy):
     }
     if proxyOptions:
         options.update(proxyOptions)
-    await r = requests.get(uri);
+    r = requests.get(uri);
     try:
         data = r.json()
     except ParsingError as e:
