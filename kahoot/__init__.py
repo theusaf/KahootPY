@@ -6,7 +6,7 @@ from .src import ChallengeHandler
 from .src import consts
 
 class client(EventEmitter):
-    def __init__(self,proxies={},option={}):
+    def __init__(self,proxies={},options={}):
         super().__init__()
         self._wsHandler = None
         self.token = None
@@ -26,47 +26,50 @@ class client(EventEmitter):
             "ChallengeAutoContinue": True,
             "ChallengeGetFullScore": False
         }.update(options)
-    async def reconnect(self):
+    def reconnect(self):
         if self.sessionID and this.cid and this._wsHandler and this._wsHandler.ws.open:
             if self.sessionID[0] == "0":
                 return False
+            def _(resolvedToken,gamemode):
+                self.gamemode = content.gamemode or "classic"
+                self.hasTwoFactorAuth = content.hasTwoFactorAuth or False
+                self.usesNamerator = content.namerator or False
+                self.token = resolvedToken
+                self._wsHandler = WSHandler(self.sessionID,self.token,self)
+                _defineListeners(self,self._wsHandler)
             try:
-                content = await token.resolve(self.sessionID,self.proxies)
+                content = token.resolve(self.sessionID,self.proxies)
             except ConnectError:
                 return False
-            self.gamemode = content.gamemode or "classic"
-            self.hasTwoFactorAuth = content.hasTwoFactorAuth or False
-            self.usesNamerator = content.namerator or False
-            self.token = content.resolvedToken
-            self._wsHandler = WSHandler(self.sessionID,self.token,self)
-            _defineListeners(self,self._wsHandler)
             return True
-    async def join(self,pin,name,team=["Player 1","Player 2","Player 3","Player 4"]):
+    def join(self,pin,name,team=["Player 1","Player 2","Player 3","Player 4"]):
         if not pin or not name:
             return False
         self.sessionID = pin
         self.name = name
         self.team = team
+        def _(resolvedToken,content):
+            self.gamemode = content.gamemode or "classic"
+            self.hasTwoFactorAuth = content.hasTwoFactorAuth or False
+            self.usesNamerator = content.namerator or False
+            self.token = resolvedToken
+            self._wsHandler = WSHandler(self.sessionID,self.token,self)
+            _defineListeners(self,self._wsHandler)
         try:
-            content = await token.resolve(self.sessionID,self.proxies)
+            content = token.resolve(self.sessionID,_,self.proxies)
         except ConnectError:
+            print(ConnectError)
             return False
-        self.gamemode = content.gamemode or "classic"
-        self.hasTwoFactorAuth = content.hasTwoFactorAuth or False
-        self.usesNamerator = content.namerator or False
-        self.token = content.resolvedToken
-        self._wsHandler = WSHandler(self.sessionID,self.token,self)
-        _defineListeners(self,self._wsHandler)
-    async def answer2Step(self,steps):
-        await self._wsHandler.send2Step(steps)
-    async def answerQuestion(self,id,question,secret):
+    def answer2Step(self,steps):
+        self._wsHandler.send2Step(steps)
+    def answerQuestion(self,id,question,secret):
         if not question:
             question = self.quiz.currentQuestion
         self._wsHandler.sendSubmit(id,question,secret)
-    async def leave(self):
-        await self._wsHandler.leave()
-    async def sendFeedback(self,fun=1,learning=1,recommend=1,overall=5):
-        await self._wsHandler.sendFeedback(fun,learning,recommend,overall)
+    def leave(self):
+        self._wsHandler.leave()
+    def sendFeedback(self,fun=1,learning=1,recommend=1,overall=5):
+        self._wsHandler.sendFeedback(fun,learning,recommend,overall)
     def next(self):
         if self.gamemode == "challenge":
             self._wsHandler.next()

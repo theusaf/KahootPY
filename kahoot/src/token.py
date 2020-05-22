@@ -7,7 +7,7 @@ from user_agent import generate_user_agent as UserAgent
 import re
 import base64
 # GET the token
-async def requestToken(sessionID,callback,proxy):
+def requestToken(sessionID,callback,proxy):
     proxyOptions = None
     nopath = None
     if type(proxy) == type(str()):
@@ -20,11 +20,13 @@ async def requestToken(sessionID,callback,proxy):
         proxy = ""
     uri = None
     if not nopath:
-        if proxy[-1] == "/":
-            uri = proxy + "https://" + consts.ENDPOINT_URI + consts.TOKEN_ENDPOINT + sessionID + "/?" + math.floor(time.time() * 1000)
+        if proxy and proxy[-1] == "/":
+            uri = proxy + "https://" + consts.ENDPOINT_URI + consts.TOKEN_ENDPOINT + str(sessionID) + "/?" + str(math.floor(time.time() * 1000))
+        elif proxy:
+            uri = proxy + "/https://" + consts.ENDPOINT_URI + consts.TOKEN_ENDPOINT + str(sessionID) + "/?" + str(math.floor(time.time() * 1000))
         else:
-            uri = proxy + "/https://" + consts.ENDPOINT_URI + consts.TOKEN_ENDPOINT + sessionID + "/?" + math.floor(time.time() * 1000)
-    _uri = urllib.parse(uri)
+            uri = "https://" + consts.ENDPOINT_URI + consts.TOKEN_ENDPOINT + str(sessionID) + "/?" + str(math.floor(time.time() * 1000))
+    _uri = urllib.parse.urlparse(uri)
     options = {
         "port": consts.ENDPOINT_PORT,
         "headers": {
@@ -44,7 +46,7 @@ async def requestToken(sessionID,callback,proxy):
         data = r.json()
     except ParsingError as e:
         return callback(None,e,None)
-    callback(r.headers.get("x-kahoot-session-token"),data.challenge,data)
+    callback(r.headers.get("x-kahoot-session-token"),data["challenge"],data)
 # Evaluate the JS challenge
 def solveChallenge(challenge):
     solved = ""
@@ -64,7 +66,6 @@ def solveChallenge(challenge):
     challenge = re.sub("this\.angular\.isArray\(offset\)", "true",challenge);
     challenge = _challengeToPython(challenge)
     edict={}
-    print(challenge)
     exec(challenge,globals(),edict)
     return edict["fin"]
 # Convert the JS to Python
@@ -90,14 +91,16 @@ def _challengeToPython(challenge):
     challenge += "\nfin=" + call
     return challenge
 # Decode the token header
-def decodeBase64(base64):
+def decodeBase64(base):
     try:
-        base64 += "=" * ((4 - len(base64) % 4) % 4)
-        return base64.b64decode(base64)
+        base += "=" * ((4 - len(base) % 4) % 4)
+        return base64.b64decode(base).decode("utf-8")
     except DecodeException as e:
         return e
 # complex stuff to get the actual token
 def concatTokens(headerToken,challengeToken):
+    print(headerToken)
+    print(challengeToken)
     token = ""
     for i in range(0,len(headerToken)):
         char = ord(headerToken[i])
@@ -106,8 +109,8 @@ def concatTokens(headerToken,challengeToken):
         token += chr(decodedChar)
     return token;
 # main function
-async def resolve(sessionID,callback,proxy):
-    if sessionID[0] == "0":
+def resolve(sessionID,callback,proxy=None):
+    if str(sessionID)[0] == "0":
         return requestChallenge(sessionID,callback,proxy)
     def _(headerToken,challenge,gamemode):
         if not headerToken:
@@ -116,7 +119,7 @@ async def resolve(sessionID,callback,proxy):
         token2 = solveChallenge(challenge)
         resolvedToken = concatTokens(token1,token2)
         callback(resolvedToken,gamemode)
-    await requestToken(sessionID,_,proxy)
+    requestToken(sessionID,_,proxy)
 # getting challenge stuff
 def requestChallenge(sessionID,callback,proxy):
     proxyOptions = None
@@ -135,7 +138,7 @@ def requestChallenge(sessionID,callback,proxy):
             uri = proxy + "https://" + consts.ENDPOINT_URI + consts.CHALLENGE_ENDPOINT + "/pin/" + sessionID
         else:
             uri = proxy + "/https://" + consts.ENDPOINT_URI + consts.CHALLENGE_ENDPOINT + "/pin/" + sessionID
-    _uri = urllib.parse(uri)
+    _uri = urllib.parse.urlparse(uri)
     options = {
         "port": consts.ENDPOINT_PORT,
         "headers": {
