@@ -5,13 +5,13 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="KahootPY",
-    version="0.1.0",
+    version="0.1.0-a",
     author="theusaf",
     author_email="theusafyt@gmail.com",
     description="A python package to interact with Kahoot!",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/theusaf/kahoot.js-updated/tree/python",
+    url="https://github.com/theusaf/KahootPY",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
