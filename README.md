@@ -2,6 +2,9 @@
 KahootPY is a library to interact with the Kahoot API. kahootPY supports joining and interacting with quizzes and challenges.
 
 # Installation
+
+`pip install -U KahootPY`
+
 ```py
 from kahoot import client
 bot = client()
