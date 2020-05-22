@@ -282,12 +282,12 @@ class WSHandler(EventEmitter):
         if self.kahoot.loggingMode:
             print("DWN: " + msg)
         data = JSON.loads(msg)[0]
-        if data.channel == consts.CHANNEL_HANDSHAKE and data.get("error"):
+        if data.get("channel") == consts.CHANNEL_HANDSHAKE and data.get("error"):
             self.emit("error")
             self.close()
             return
-        if data.channel == consts.CHANNEL_HANDSHAKE and data.get("clientId"):
-            self.clientID = data.clientId
+        if data.get("channel") == consts.CHANNEL_HANDSHAKE and data.get("clientId"):
+            self.clientID = data.get("clientId")
             r = self.getPacket(data)[0]
             r.advice = {
                 "timeout": 0
@@ -296,7 +296,7 @@ class WSHandler(EventEmitter):
             r.connectionType = "websocket"
             r.ext.ack = 0
             self.send([r])
-        elif data.channel == consts.CHANNEL_CONN and data.get("advice") and data.advice.get("reconnect") and data.advice.reconnect == "retry":
+        elif data.get("channel") == consts.CHANNEL_CONN and data.get("advice") and data.get("advice").get("reconnect") and data.get("advice").get("reconnect") == "retry":
             connectionPacket = {
                 "ext": {
                     "ack": 1,
@@ -313,21 +313,21 @@ class WSHandler(EventEmitter):
             self.ready = True
             self.emit("ready")
         elif data.get("data"):
-            if data.data.get("error"):
-                if data.data.get("type") and data.data.type == "loginResponse":
+            if data.get("data").get("error"):
+                if data.get("data").get("type") and data.get("data").get("type") == "loginResponse":
                     return self.emit("invalidName")
                 try:
                     self.emit("error",data.data.error)
                 except JoinException as e:
                     pass
                 return
-            elif data.data.type == "loginResponse":
+            elif data.get("data").get("type") == "loginResponse":
                 self.kahoot.cid = data.data.cid
                 self.emit("joined")
             else:
-                if data.data.get("content"):
-                    cont = JSON.dumps(data.data.content)
-                    if self.dataHandler[data.data.id]:
+                if data.get("data").get("content"):
+                    cont = JSON.dumps(data.get("data").get("content"))
+                    if self.dataHandler[data.get("data").get("id")]:
                         self.dataHandler[data.data.id](data,cont)
         if data.get("ext") and data.channel == consts.CHANNEL_CONN and not data.get("advice") and self.ready:
             packet = self.getPacket(data)[0]
