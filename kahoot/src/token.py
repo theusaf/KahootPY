@@ -12,10 +12,10 @@ def requestToken(sessionID,callback,proxy):
     nopath = None
     if type(proxy) == type(str()):
         proxy = proxy or ""
-    elif proxy and proxy.proxy:
-        proxyOptions = proxy.options or {}
-        nopath = proxy.nopath
-        proxy = proxy.proxy
+    elif proxy and proxy.get("proxy"):
+        proxyOptions = proxy.get("options") or {}
+        nopath = proxy.get("nopath")
+        proxy = proxy.get("proxy")
     else:
         proxy = ""
     uri = None
@@ -124,10 +124,10 @@ def requestChallenge(sessionID,callback,proxy):
     nopath = None
     if type(proxy) == type(str()):
         proxy = proxy or ""
-    elif proxy and proxy.proxy:
-        proxyOptions = proxy.options or {}
-        nopath = proxy.nopath
-        proxy = proxy.proxy
+    elif proxy and proxy.get("proxy"):
+        proxyOptions = proxy.get("options") or {}
+        nopath = proxy.get("nopath")
+        proxy = proxy.get("proxy")
     else:
         proxy = ""
     uri = None
@@ -157,10 +157,10 @@ def requestChallenge(sessionID,callback,proxy):
     try:
         inf = {
             "twoFactorAuth": False,
-            "gameMode": data.challenge.type,
-            "kahootData": data.kahoot,
-            "rawChallengeData": data.challenge
-        }.update(data.challenge.game_options)
+            "gameMode": data["challenge"]["type"],
+            "kahootData": data["kahoot"],
+            "rawChallengeData": data["challenge"]
+        }.update(data["challenge"]["game_options"])
         return callback(True,inf)
     except Exception as e:
         return callback(None,e,None)

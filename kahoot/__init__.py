@@ -52,6 +52,9 @@ class client(EventEmitter):
         self.name = name
         self.team = team
         def _(resolvedToken,content):
+            if(resolvedToken == True):
+                print("Challenges are not supported by KahootPY yet.")
+                return False
             self.gamemode = content.get("gameMode") or "classic"
             self.hasTwoFactorAuth = content.get("twoFactorAuth") or False
             self.usesNamerator = content.get("namerator") or False
