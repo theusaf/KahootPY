@@ -44,7 +44,7 @@ def requestToken(sessionID,callback,proxy):
         return callback(None,None,None)
     try:
         data = r.json()
-    except ParsingError as e:
+    except Exception as e:
         return callback(None,e,None)
     callback(r.headers.get("x-kahoot-session-token"),data["challenge"],data)
 # Evaluate the JS challenge
@@ -95,7 +95,7 @@ def decodeBase64(base):
     try:
         base += "=" * ((4 - len(base) % 4) % 4)
         return base64.b64decode(base).decode("utf-8")
-    except DecodeException as e:
+    except Exception as e:
         return e
 # complex stuff to get the actual token
 def concatTokens(headerToken,challengeToken):
@@ -152,7 +152,7 @@ def requestChallenge(sessionID,callback,proxy):
     r = requests.get(uri);
     try:
         data = r.json()
-    except ParsingError as e:
+    except Exception as e:
         return callback(None,e,None)
     try:
         inf = {
@@ -162,5 +162,5 @@ def requestChallenge(sessionID,callback,proxy):
             "rawChallengeData": data.challenge
         }.update(data.challenge.game_options)
         return callback(True,inf)
-    except InvalidChallenge as e:
+    except Exception as e:
         return callback(None,e,None)

@@ -4,6 +4,8 @@ from .src import Assets
 from .src.WSHandler import WSHandler
 # from .src.ChallengeHandler import ChallengeHandler
 from .src import consts
+import threading
+import time
 
 class client(EventEmitter):
     def __init__(self,proxies={},options={}):
@@ -39,7 +41,7 @@ class client(EventEmitter):
                 _defineListeners(self,self._wsHandler)
             try:
                 content = token.resolve(self.sessionID,self.proxies)
-            except ConnectError:
+            except Exception:
                 return False
             return True
     def join(self,pin,name,team=["Player 1","Player 2","Player 3","Player 4"]):
@@ -55,9 +57,18 @@ class client(EventEmitter):
             self.token = resolvedToken
             self._wsHandler = WSHandler(self.sessionID,self.token,self)
             _defineListeners(self,self._wsHandler)
+            thread = threading.Thread(target=self._wsHandler.ws.run_forever)
+            def fname():
+                print("ready!")
+            self._wsHandler.on("ready",fname)
+            thread.start()
+            #def loop():
+            #    while True:
+            #        time.sleep(1)
+            #threading.Thread(target=loop).start()
         try:
             content = token.resolve(self.sessionID,_,self.proxies)
-        except ConnectError:
+        except Exception:
             print(ConnectError)
             return False
     def answer2Step(self,steps):
@@ -87,7 +98,7 @@ def _defineListeners(client,socket):
     def TwoHandle():
         client.emit("2Step")
     def ReadyHandle():
-        client.login(client.name,client.team)
+        socket.login(client.name,client.team)
     def JoinHandle():
         client.emit("ready")
         client.emit("joined")
@@ -110,7 +121,7 @@ def _defineListeners(client,socket):
     def QuestionStartHandle():
         try:
             client.emit("questionStart",client.quiz.currentQuestion)
-        except JoinMidGameError as e:
+        except Exception as e:
             # likely joined during quiz
             pass
     def QuestionSubmitHandle(message):
@@ -140,3 +151,4 @@ def _defineListeners(client,socket):
     socket.on("finishText",FinishTextHandle)
     socket.on("finish",FinishHandle)
     socket.on("feedback",FeedbackHandle)
+    print("Finished Adding Event Listeners")

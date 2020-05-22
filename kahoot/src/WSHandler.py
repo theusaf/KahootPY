@@ -40,13 +40,8 @@ class WSHandler(EventEmitter):
             self.close()
         def on_open(ws):
             self.open(ws)
-            def run(*args):
-                time.sleep(1)
-            thread.start_new_thread(run, ())
-        # websocket.enableTrace(True)
         self.ws = websocket.WebSocketApp(consts.WSS_ENDPOINT + str(session) + "/" + token,on_message=on_message,on_error=on_error,on_close=on_close)
         self.ws.on_open = on_open
-        self.ws.run_forever(sslopt={"check_hostname": False})
         def _1(data,content):
             if not self.kahoot.quiz:
                 self.emit("quizData",{
@@ -113,7 +108,7 @@ class WSHandler(EventEmitter):
             self.emit("quizEnd")
             try:
                 self.ws.close()
-            except CloseSocketError as e:
+            except Exception as e:
                 # probably already closed
                 pass
 
@@ -171,7 +166,7 @@ class WSHandler(EventEmitter):
                 "l": l,
                 "o": o
             }
-        except ExtError as e:
+        except Exception as e:
             self.timesync = {
                 "tc": round(time.time() * 1000),
                 "l": 0,
@@ -319,7 +314,7 @@ class WSHandler(EventEmitter):
                     return self.emit("invalidName")
                 try:
                     self.emit("error",data["data"]["error"])
-                except JoinException as e:
+                except Exception as e:
                     pass
                 return
             elif data.get("data").get("type") == "loginResponse":
@@ -423,13 +418,14 @@ class WSHandler(EventEmitter):
             "participantUserId": None,
             "id": str(self.msgID)
         }]
+        time.sleep(0.5)
         self.send(joinPacket)
         if self.kahoot["gamemode"] == "team":
             joinPacket2 = [{
                 "channel": "/service/controller",
                 "clientId": self.clientID,
                 "data": {
-                    "content": JSON.dumps(team and type(team.append) == type(chr) and team if len(team) else ["Player 1", "Player 2", "Player 3", "Player 4"]),
+                    "content": JSON.dumps(team and type(team) == type(list()) and team if len(team) else ["Player 1", "Player 2", "Player 3", "Player 4"]),
                     "gameid": self.gameID,
                     "host": consts.ENDPOINT_URI,
                     "id": 18,
@@ -443,7 +439,7 @@ class WSHandler(EventEmitter):
             self.send(joinPacket2)
     def close(self):
         self.connected = False
-        self._ws.close()
+        self.ws.close()
         self.emit("close")
     def leave(self):
         self.msgID+=1
@@ -459,5 +455,5 @@ class WSHandler(EventEmitter):
             },
             "id": str(self.msgID)
         }])
-        sleep(0.5)
-        self._ws.close()
+        time.sleep(0.5)
+        self.close()
