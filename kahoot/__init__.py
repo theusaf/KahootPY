@@ -73,7 +73,7 @@ class client(EventEmitter):
             return False
     def answer2Step(self,steps):
         self._wsHandler.send2Step(steps)
-    def answerQuestion(self,id,question,secret):
+    def answerQuestion(self,id,question,secret={}):
         if not question:
             question = self.quiz.currentQuestion
         self._wsHandler.sendSubmit(id,question,secret)
@@ -106,7 +106,6 @@ def _defineListeners(client,socket):
             client.emit("2Step")
     def QuizDataHandle(quizInfo):
         client.quiz = Assets.Quiz(quizInfo.get("name"),quizInfo["type"],quizInfo.get("qCount"),client,quizInfo["totalQ"],quizInfo["quizQuestionAnswers"],quizInfo)
-        print(client.quiz)
         client.emit("quizStart",client.quiz)
         client.emit("quiz",client.quiz)
     def QuizUpdateHandle(updateInfo):
@@ -125,7 +124,7 @@ def _defineListeners(client,socket):
         except Exception as e:
             # likely joined during quiz
             pass
-    def QuestionSubmitHandle(message):
+    def QuestionSubmitHandle(message=None):
         e = Assets.QuestionSubmitEvent(message,client)
         client.emit("questionSubmit",e)
     def FinishTextHandle(data):

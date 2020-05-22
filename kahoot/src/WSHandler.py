@@ -26,6 +26,7 @@ class WSHandler(EventEmitter):
         self.name = ""
         self.ready = False
         self.firstQuizEvent = False
+        self.timesync = None
         self.lastReceivedQ = None
         def on_message(ws,m):
             self.message(m)
@@ -43,7 +44,7 @@ class WSHandler(EventEmitter):
         self.ws = websocket.WebSocketApp(consts.WSS_ENDPOINT + str(session) + "/" + token,on_message=on_message,on_error=on_error,on_close=on_close)
         self.ws.on_open = on_open
         def _1(data,content):
-            if not self.kahoot.quiz:
+            if not getattr(self.kahoot,"quiz"):
                 self.emit("quizData",{
                     "name": None,
                     "type": content["quizType"],
@@ -51,13 +52,13 @@ class WSHandler(EventEmitter):
                     "totalQ": len(content["quizQuestionAnswers"]),
                     "quizQuestionAnswers": content["quizQuestionAnswers"]
                 })
-            if not self.kahoot.quiz.currentQuestion:
+            if not getattr(self.kahoot.quiz,"currentQuestion"):
                 self.emit("quizUpdate", {
                     "questionIndex": content["questionIndex"],
                     "timeLeft": content["timeLeft"],
                     "type": content["gameBlockType"],
-                    "useStoryBlocks": content["canAccessStoryBlocks"],
-                    "ansMap": content["answerMap"]
+                    "useStoryBlocks": content.get("canAccessStoryBlocks"),
+                    "ansMap": content.get("answerMap")
                 })
             elif content["questionIndex"] > self.kahoot.quiz.currentQuestion.index:
                 self.emit("quizUpdate", {
@@ -236,12 +237,10 @@ class WSHandler(EventEmitter):
             except Exception as e:
                 print(e)
                 pass
-    def sendSubmit(self, questionChoice, question):
-        time = round(time.time() * 1000) - self.receivedQuestionTime
-        if time < 250:
-            time.sleep(0.25 - (time/1000))
-            self.sendSubmit(questionChoice,question)
-            return
+    def sendSubmit(self, questionChoice, question, secret=None):
+        timer = round(time.time() * 1000) - self.receivedQuestionTime
+        if timer < 250:
+            time.sleep(0.25 - (timer/1000))
         packet = self.getSubmitPacket(questionChoice,question)
         self.send(packet)
         self.emit("questionSubmit")
