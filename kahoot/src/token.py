@@ -99,8 +99,6 @@ def decodeBase64(base):
         return e
 # complex stuff to get the actual token
 def concatTokens(headerToken,challengeToken):
-    print(headerToken)
-    print(challengeToken)
     token = ""
     for i in range(0,len(headerToken)):
         char = ord(headerToken[i])

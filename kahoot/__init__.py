@@ -1,8 +1,8 @@
 from pymitter import EventEmitter
 from .src import token
 from .src import Assets
-from .src import WSHandler
-from .src import ChallengeHandler
+from .src.WSHandler import WSHandler
+# from .src.ChallengeHandler import ChallengeHandler
 from .src import consts
 
 class client(EventEmitter):
@@ -31,9 +31,9 @@ class client(EventEmitter):
             if self.sessionID[0] == "0":
                 return False
             def _(resolvedToken,gamemode):
-                self.gamemode = content.gamemode or "classic"
-                self.hasTwoFactorAuth = content.hasTwoFactorAuth or False
-                self.usesNamerator = content.namerator or False
+                self.gamemode = content.get("gamemode") or "classic"
+                self.hasTwoFactorAuth = content.get("twoFactorAuth") or False
+                self.usesNamerator = content.get("namerator") or False
                 self.token = resolvedToken
                 self._wsHandler = WSHandler(self.sessionID,self.token,self)
                 _defineListeners(self,self._wsHandler)
@@ -49,9 +49,9 @@ class client(EventEmitter):
         self.name = name
         self.team = team
         def _(resolvedToken,content):
-            self.gamemode = content.gamemode or "classic"
-            self.hasTwoFactorAuth = content.hasTwoFactorAuth or False
-            self.usesNamerator = content.namerator or False
+            self.gamemode = content.get("gamemode") or "classic"
+            self.hasTwoFactorAuth = content.get("twoFactorAuth") or False
+            self.usesNamerator = content.get("namerator") or False
             self.token = resolvedToken
             self._wsHandler = WSHandler(self.sessionID,self.token,self)
             _defineListeners(self,self._wsHandler)

@@ -33,10 +33,9 @@ class WSHandler(EventEmitter):
             self.close()
         def on_open():
             self.open()
-        self.ws = websocket.WebSocketApp()
-        self.ws.connect(consts.WSS_ENDPOINT + session + "/" + token,on_message=on_message,on_error=on_error,on_close=on_close,sslopt={"check_hostname": False})
+        self.ws = websocket.WebSocketApp(consts.WSS_ENDPOINT + str(session) + "/" + token,on_message=on_message,on_error=on_error,on_close=on_close)
         self.ws.on_open = on_open
-        self.ws.run_forever()
+        self.ws.run_forever(sslopt={"check_hostname": False})
         def _1(data,content):
             if not self.kahoot.quiz:
                 self.emit("quizData",{
@@ -48,11 +47,11 @@ class WSHandler(EventEmitter):
                 })
             if not self.kahoot.quiz.currentQuestion:
                 self.emit("quizUpdate", {
-                    questionIndex: content.questionIndex,
-                    timeLeft: content.timeLeft,
-                    type: content.gameBlockType,
-                    useStoryBlocks: content.canAccessStoryBlocks,
-                    ansMap: content.answerMap
+                    "questionIndex": content.questionIndex,
+                    "timeLeft": content.timeLeft,
+                    "type": content.gameBlockType,
+                    "useStoryBlocks": content.canAccessStoryBlocks,
+                    "ansMap": content.answerMap
                 })
             elif content.questionIndex > self.kahoot.quiz.currentQuestion.index:
                 self.emit("quizUpdate", {
