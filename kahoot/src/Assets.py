@@ -23,7 +23,7 @@ class Question():
         self.number = self.quiz.questions.length
         self.quiz.currentQuestion = self
         self.rawEvent = rawEvent
-    def answer(number,secret):
+    def answer(self,number,secret):
         if not number and number != 0:
             return False
         self.client.answerQuestion(number,self,secret)

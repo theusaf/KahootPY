@@ -26,7 +26,7 @@ class client(EventEmitter):
             ChallengeAutoContinue: True,
             ChallengeGetFullScore: False
         }.update(options)
-    async def reconnect():
+    async def reconnect(self):
         if self.sessionID and this.cid and this._wsHandler and this._wsHandler.ws.open:
             if self.sessionID[0] == "0":
                 return False
@@ -41,7 +41,7 @@ class client(EventEmitter):
             self._wsHandler = WSHandler(self.sessionID,self.token,self)
             _defineListeners(self,self._wsHandler)
             return True
-    async def join(pin,name,team):
+    async def join(self,pin,name,team):
         if not pin or not name:
             return False
         self.sessionID = pin
@@ -57,17 +57,17 @@ class client(EventEmitter):
         self.token = content.resolvedToken
         self._wsHandler = WSHandler(self.sessionID,self.token,self)
         _defineListeners(self,self._wsHandler)
-    async def answer2Step(steps):
+    async def answer2Step(self,steps):
         await self._wsHandler.send2Step(steps)
-    async def answerQuestion(id,question,secret):
+    async def answerQuestion(self,id,question,secret):
         if not question:
             question = self.quiz.currentQuestion
         self._wsHandler.sendSubmit(id,question,secret)
-    async def leave():
+    async def leave(self):
         await self._wsHandler.leave()
-    async def sendFeedback(fun=1,learning=1,recommend=1,overall=5):
+    async def sendFeedback(self,fun=1,learning=1,recommend=1,overall=5):
         await self._wsHandler.sendFeedback(fun,learning,recommend,overall)
-    def next():
+    def next(self):
         if self.gamemode == "challenge":
             self._wsHandler.next()
             return True
