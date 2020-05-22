@@ -24,16 +24,17 @@ class WSHandler(EventEmitter):
         self.connected = False
         self.gameID = session
         self.name = ""
+        self.ready = False
         self.firstQuizEvent = False
         self.lastReceivedQ = None
         def on_message(ws,m):
-            self.message(m,ws)
+            self.message(m)
         def on_close(ws):
-            print("close")
+            #print("close")
             self.connected = False
             self.close()
         def on_error(ws,e):
-            print(e)
+            #print(e)
             self.connected = False
             self.emit("error",e)
             self.close()
@@ -236,7 +237,8 @@ class WSHandler(EventEmitter):
         if self.connected:
             try:
                 self._ws.send(JSON.dumps(msg))
-            except Exception:
+            except Exception as e:
+                print(e)
                 pass
     def sendSubmit(self, questionChoice, question):
         time = round(time.time() * 1000) - self.receivedQuestionTime
@@ -276,16 +278,15 @@ class WSHandler(EventEmitter):
         self.msgID+=1
         self.send(r)
         pass
-    def message(self, msg, ws):
-        self._ws = ws
+    def message(self, msg):
         if self.kahoot.loggingMode:
             print("DWN: " + msg)
         data = JSON.loads(msg)[0]
-        if data.channel == consts.CHANNEL_HANDSHAKE and data.error:
+        if data.channel == consts.CHANNEL_HANDSHAKE and data.get("error"):
             self.emit("error")
             self.close()
             return
-        if data.channel == consts.CHANNEL_HANDSHAKE and data.clientId:
+        if data.channel == consts.CHANNEL_HANDSHAKE and data.get("clientId"):
             self.clientID = data.clientId
             r = self.getPacket(data)[0]
             r.advice = {
@@ -295,7 +296,7 @@ class WSHandler(EventEmitter):
             r.connectionType = "websocket"
             r.ext.ack = 0
             self.send([r])
-        elif data.channel == consts.CHANNEL_CONN and data.advice and data.advice.reconnect and data.advice.reconnect == "retry":
+        elif data.channel == consts.CHANNEL_CONN and data.get("advice") and data.advice.get("reconnect") and data.advice.reconnect == "retry":
             connectionPacket = {
                 "ext": {
                     "ack": 1,
@@ -311,9 +312,9 @@ class WSHandler(EventEmitter):
             time.sleep(0.5)
             self.ready = True
             self.emit("ready")
-        elif data.data:
-            if data.data.error:
-                if data.data.type and data.data.type == "loginResponse":
+        elif data.get("data"):
+            if data.data.get("error"):
+                if data.data.get("type") and data.data.type == "loginResponse":
                     return self.emit("invalidName")
                 try:
                     self.emit("error",data.data.error)
@@ -324,11 +325,11 @@ class WSHandler(EventEmitter):
                 self.kahoot.cid = data.data.cid
                 self.emit("joined")
             else:
-                if data.data.content:
+                if data.data.get("content"):
                     cont = JSON.dumps(data.data.content)
                     if self.dataHandler[data.data.id]:
                         self.dataHandler[data.data.id](data,cont)
-        if data.ext and data.channel == consts.CHANNEL_CONN and not data.advice and self.ready:
+        if data.get("ext") and data.channel == consts.CHANNEL_CONN and not data.get("advice") and self.ready:
             packet = self.getPacket(data)[0]
             packet.connectionType = "websocket"
             self.send([packet])
@@ -441,6 +442,7 @@ class WSHandler(EventEmitter):
             self.send(joinPacket2)
     def close(self):
         self.connected = False
+        self._ws.close()
         self.emit("close")
     def leave(self):
         self.msgID+=1
@@ -457,4 +459,4 @@ class WSHandler(EventEmitter):
             id: str(self.msgID)
         }])
         sleep(0.5)
-        self.ws.close()
+        self._ws.close()
