@@ -1,17 +1,12 @@
 import asyncio
 import websocket
-import ssl
 from . import consts
 from pymitter import EventEmitter
 from user_agent import generate_user_agent as UserAgent
-import base64
 import time
 import math
 from random import random as random
 import json as JSON
-from threading import Timer
-
-ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 
 class WSHandler(EventEmitter):
     def __init__(self,session,token,kahoot):
