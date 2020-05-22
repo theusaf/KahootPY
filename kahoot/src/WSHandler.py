@@ -50,27 +50,27 @@ class WSHandler(EventEmitter):
         def _1(data,content):
             if not self.kahoot.quiz:
                 self.emit("quizData",{
-                    name: None,
-                    type: content.quizType,
-                    qCount: content.quizQuestionAnswers[0],
-                    totalQ: content.quizQuestionAnswers.length,
-                    quizQuestionAnswers: content.quizQuestionAnswers
+                    "name": None,
+                    "type": content["quizType"],
+                    "qCount": content["quizQuestionAnswers"][0],
+                    "totalQ": len(content["quizQuestionAnswers"]),
+                    "quizQuestionAnswers": content["quizQuestionAnswers"]
                 })
             if not self.kahoot.quiz.currentQuestion:
                 self.emit("quizUpdate", {
-                    "questionIndex": content.questionIndex,
-                    "timeLeft": content.timeLeft,
-                    "type": content.gameBlockType,
-                    "useStoryBlocks": content.canAccessStoryBlocks,
-                    "ansMap": content.answerMap
+                    "questionIndex": content["questionIndex"],
+                    "timeLeft": content["timeLeft"],
+                    "type": content["gameBlockType"],
+                    "useStoryBlocks": content["canAccessStoryBlocks"],
+                    "ansMap": content["answerMap"]
                 })
-            elif content.questionIndex > self.kahoot.quiz.currentQuestion.index:
+            elif content["questionIndex"] > self.kahoot.quiz.currentQuestion.index:
                 self.emit("quizUpdate", {
-                    questionIndex: content.questionIndex,
-                    timeLeft: content.timeLeft,
-                    type: content.gameBlockType,
-                    useStoryBlocks: content.canAccessStoryBlocks,
-                    ansMap: content.answerMap
+                    "questionIndex": content["questionIndex"],
+                    "timeLeft": content["timeLeft"],
+                    "type": content.get("gameBlockType"),
+                    "useStoryBlocks": content.get("canAccessStoryBlocks"),
+                    "ansMap": content.get("answerMap")
                 })
 
         def _2(data,content):
@@ -79,34 +79,34 @@ class WSHandler(EventEmitter):
 
         def _3(data,content):
             self.emit("finish", {
-                playerCount: content.playerCount,
-                quizID: content.quizId,
-                rank: content.rank,
-                correct: content.correctCount,
-                incorrect: content.incorrectCount
+                "playerCount": content["playerCount"],
+                "quizID": content["quizId"],
+                "rank": content["rank"],
+                "correct": content["correctCount"],
+                "incorrect": content["incorrectCount"]
             })
 
         def _8(data,content):
             self.emit("questionEnd", {
-                correctAnswers: content.correctAnswers,
-                correct: content.isCorrect,
-                points: content.points,
-                pointsData: content.pointsData,
-                rank: content.rank,
-                nemesis: content.nemesis,
-                text: content.text,
-                totalScore: content.totalScore
+                "correctAnswers": content["correctAnswers"],
+                "correct": content["isCorrect"],
+                "points": content["points"],
+                "pointsData": content["pointsData"],
+                "rank": content["rank"],
+                "nemesis": content.get("nemesis"),
+                "text": content.get("text"),
+                "totalScore": content["totalScore"]
             })
 
         def _9(data,content):
             if not self.firstQuizEvent:
                 self.firstQuizEvent = True
                 self.emit("quizData", {
-                    name: content.quizName,
-                    type: content.quizType,
-                    qCount: content.quizQuestionAnswers[0],
-                    totalQ: content.quizQuestionAnswers.length,
-                    quizQuestionAnswers: content.quizQuestionAnswers
+                    "name": content["quizName"],
+                    "type": content.get("quizType"),
+                    "qCount": content["quizQuestionAnswers"][0],
+                    "totalQ": len(content["quizQuestionAnswers"]),
+                    "quizQuestionAnswers": content["quizQuestionAnswers"]
                 })
 
         def _10(data,content):
@@ -122,7 +122,7 @@ class WSHandler(EventEmitter):
 
         def _13(data,content):
             self.emit("finishText", {
-                metal: content.podiumMedalType
+                "metal": content["podiumMedalType"]
             })
 
         def _51(data,content):
@@ -139,17 +139,17 @@ class WSHandler(EventEmitter):
                 self.emit("2Step")
 
         self.dataHandler = {
-            1: _1,
-            2: _2,
-            3: _3,
-            8: _8,
-            9: _9,
-            10: _10,
-            12: _12,
-            13: _13,
-            51: _51,
-            52: _52,
-            53: _53
+            "1": _1,
+            "2": _2,
+            "3": _3,
+            "8": _8,
+            "9": _9,
+            "10": _10,
+            "12": _12,
+            "13": _13,
+            "51": _51,
+            "52": _52,
+            "53": _53
         }
     def getExt(self):
         return {
@@ -164,13 +164,13 @@ class WSHandler(EventEmitter):
         l = None
         o = None
         try:
-            l = round(((time.time() * 1000) - packet.ext.timesync.tc - packet.ext.timesync.p) / 2)
+            l = round(((time.time() * 1000) - packet["ext"]["timesync"]["tc"] - packet["ext"]["timesync"]["p"]) / 2)
             self.timesync = {
                 "tc": round(time.time() * 1000),
                 "l": l,
                 "o": o
             }
-        except ExtError:
+        except ExtError as e:
             self.timesync = {
                 "tc": round(time.time() * 1000),
                 "l": 0,
@@ -178,17 +178,17 @@ class WSHandler(EventEmitter):
             }
         self.msgID+=1
         return [{
-            channel: packet.channel,
-            clientId: self.clientID,
-            ext: {
-                ack: packet.ext.ack,
-                timesync: {
-                    l: l,
-                    o: o,
-                    tc: round(time.time() * 1000)
+            "channel": packet["channel"],
+            "clientId": self.clientID,
+            "ext": {
+                "ack": packet["ext"]["ack"],
+                "timesync": {
+                    "l": l,
+                    "o": o,
+                    "tc": round(time.time() * 1000)
                 }
             },
-            id: str(self.msgID)
+            "id": str(self.msgID)
         }]
     def getSubmitPacket(self, questionChoice, question):
         self.msgID+=1
@@ -289,12 +289,12 @@ class WSHandler(EventEmitter):
         if data.get("channel") == consts.CHANNEL_HANDSHAKE and data.get("clientId"):
             self.clientID = data.get("clientId")
             r = self.getPacket(data)[0]
-            r.advice = {
+            r["advice"] = {
                 "timeout": 0
             }
-            r.channel = "/meta/connect"
-            r.connectionType = "websocket"
-            r.ext.ack = 0
+            r["channel"] = "/meta/connect"
+            r["connectionType"] = "websocket"
+            r["ext"]["ack"] = 0
             self.send([r])
         elif data.get("channel") == consts.CHANNEL_CONN and data.get("advice") and data.get("advice").get("reconnect") and data.get("advice").get("reconnect") == "retry":
             connectionPacket = {
@@ -305,9 +305,9 @@ class WSHandler(EventEmitter):
                 "id": str(self.msgID + 1)
             }
             self.msgID += 1
-            connectionPacket.channel = consts.CHANNEL_CONN
-            connectionPacket.clientId = self.clientID
-            connectionPacket.connectionType = "websocket"
+            connectionPacket["channel"] = consts.CHANNEL_CONN
+            connectionPacket["clientId"] = self.clientID
+            connectionPacket["connectionType"] = "websocket"
             self.send([connectionPacket])
             time.sleep(0.5)
             self.ready = True
@@ -317,21 +317,21 @@ class WSHandler(EventEmitter):
                 if data.get("data").get("type") and data.get("data").get("type") == "loginResponse":
                     return self.emit("invalidName")
                 try:
-                    self.emit("error",data.data.error)
+                    self.emit("error",data["data"]["error"])
                 except JoinException as e:
                     pass
                 return
             elif data.get("data").get("type") == "loginResponse":
-                self.kahoot.cid = data.data.cid
+                self.kahoot.cid = data["data"]["cid"]
                 self.emit("joined")
             else:
                 if data.get("data").get("content"):
                     cont = JSON.dumps(data.get("data").get("content"))
                     if self.dataHandler[data.get("data").get("id")]:
-                        self.dataHandler[data.data.id](data,cont)
-        if data.get("ext") and data.channel == consts.CHANNEL_CONN and not data.get("advice") and self.ready:
+                        self.dataHandler[data["data"]["id"]](data,cont)
+        if data.get("ext") and data["channel"] == consts.CHANNEL_CONN and not data.get("advice") and self.ready:
             packet = self.getPacket(data)[0]
-            packet.connectionType = "websocket"
+            packet["connectionType"] = "websocket"
             self.send([packet])
     def send2Step(self, steps):
         packet = [{
@@ -423,7 +423,7 @@ class WSHandler(EventEmitter):
             "id": str(self.msgID)
         }]
         self.send(joinPacket)
-        if self.kahoot.gamemode == "team":
+        if self.kahoot["gamemode"] == "team":
             joinPacket2 = [{
                 "channel": "/service/controller",
                 "clientId": self.clientID,
@@ -447,16 +447,16 @@ class WSHandler(EventEmitter):
     def leave(self):
         self.msgID+=1
         try:
-            self.timesync.tc = round(time.time() * 1000)
+            self.timesync["tc"] = round(time.time() * 1000)
         except:
             pass
         self.send([{
-            channel: "/meta/disconnect",
-            clientId: self.clientID,
-            ext: {
-                timesync: self.timesync
+            "channel": "/meta/disconnect",
+            "clientId": self.clientID,
+            "ext": {
+                "timesync": self.timesync
             },
-            id: str(self.msgID)
+            "id": str(self.msgID)
         }])
         sleep(0.5)
         self._ws.close()
