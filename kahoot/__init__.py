@@ -6,7 +6,7 @@ from .src import ChallengeHandler
 from .src import consts
 
 class client(EventEmitter):
-    def __init__(self,proxies,options):
+    def __init__(self,proxies={},option={}):
         super().__init__()
         self._wsHandler = None
         self.token = None
@@ -23,8 +23,8 @@ class client(EventEmitter):
         self.loggingMode = False
         self.joined = False
         self.options = {
-            ChallengeAutoContinue: True,
-            ChallengeGetFullScore: False
+            "ChallengeAutoContinue": True,
+            "ChallengeGetFullScore": False
         }.update(options)
     async def reconnect(self):
         if self.sessionID and this.cid and this._wsHandler and this._wsHandler.ws.open:
@@ -41,7 +41,7 @@ class client(EventEmitter):
             self._wsHandler = WSHandler(self.sessionID,self.token,self)
             _defineListeners(self,self._wsHandler)
             return True
-    async def join(self,pin,name,team):
+    async def join(self,pin,name,team=["Player 1","Player 2","Player 3","Player 4"]):
         if not pin or not name:
             return False
         self.sessionID = pin

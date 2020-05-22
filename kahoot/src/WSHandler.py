@@ -133,7 +133,7 @@ class WSHandler(EventEmitter):
             2: _2,
             3: _3,
             8: _8,
-            9: _9
+            9: _9,
             10: _10,
             12: _12,
             13: _13,
@@ -156,15 +156,15 @@ class WSHandler(EventEmitter):
         try:
             l = round(((time.time() * 1000) - packet.ext.timesync.tc - packet.ext.timesync.p) / 2)
             self.timesync = {
-                tc: round(time.time() * 1000),
-                l: l,
-                o: o
+                "tc": round(time.time() * 1000),
+                "l": l,
+                "o": o
             }
         except ExtError:
             self.timesync = {
-                tc: round(time.time() * 1000),
-                l: 0,
-                o: 0
+                "tc": round(time.time() * 1000),
+                "l": 0,
+                "o": 0
             }
         self.msgID+=1
         return [{
@@ -183,23 +183,23 @@ class WSHandler(EventEmitter):
     def getSubmitPacket(self, questionChoice, question):
         self.msgID+=1
         r = [{
-            channel: "/service/controller",
-            clientId: self.clientID,
-            data: {
-                content: JSON.dumps({
-                    choice: questionChoice,
-                    questionIndex: self.kahoot.quiz.currentQuestion.index,
-                    meta: {
-                        lag: round(random() * 45 + 5)
+            "channel": "/service/controller",
+            "clientId": self.clientID,
+            "data": {
+                "content": JSON.dumps({
+                    "choice": questionChoice,
+                    "questionIndex": self.kahoot.quiz.currentQuestion.index,
+                    "meta": {
+                        "lag": round(random() * 45 + 5)
                     },
-                    type: question.type
+                    "type": question.type
                 }),
-                gameid: self.gameID,
-                host: consts.ENDPOINT_URI,
-                id: 45,
-                type: "message"
+                "gameid": self.gameID,
+                "host": consts.ENDPOINT_URI,
+                "id": 45,
+                "type": "message"
             },
-            id: str(self.msgID)
+            "id": str(self.msgID)
         }]
         if question.type == "open_ended" or question.type == "word_cloud":
             r[0].data.content = JSON.dumps({
@@ -242,25 +242,25 @@ class WSHandler(EventEmitter):
         self.connected = True
         self.emit("open")
         r = [{
-            advice: {
-                interval: 0,
-                timeout: 60000
+            "advice": {
+                "interval": 0,
+                "timeout": 60000
             },
-            channel: consts.CHANNEL_HANDSHAKE,
-            ext: {
-                ack: true,
-                timesync: {
-                    l: 0,
-                    o: 0,
-                    tc: round(time.time() * 1000)
+            "channel": consts.CHANNEL_HANDSHAKE,
+            "ext": {
+                "ack": True,
+                "timesync": {
+                    "l": 0,
+                    "o": 0,
+                    "tc": round(time.time() * 1000)
                 },
-                id: "1",
-                minimumVersion: "1.0",
-                supportedConnectionTypes: [
+                "id": "1",
+                "minimumVersion": "1.0",
+                "supportedConnectionTypes": [
                     "websocket",
                     "long-polling"
                 ],
-                version: "1.0"
+                "version": "1.0"
             }
         }]
         self.msgID+=1
@@ -278,7 +278,7 @@ class WSHandler(EventEmitter):
             self.clientID = data.clientId
             r = self.getPacket(data)[0]
             r.advice = {
-                timeout: 0
+                "timeout": 0
             }
             r.channel = "/meta/connect"
             r.connectionType = "websocket"
@@ -286,11 +286,11 @@ class WSHandler(EventEmitter):
             self.send([r])
         elif data.channel == consts.CHANNEL_CONN and data.advice and data.advice.reconnect and data.advice.reconnect == "retry":
             connectionPacket = {
-                ext: {
-                    ack: 1,
-                    timesync: self.timesync
+                "ext": {
+                    "ack": 1,
+                    "timesync": self.timesync
                 },
-                id: str(self.msgID + 1)
+                "id": str(self.msgID + 1)
             }
             self.msgID += 1
             connectionPacket.channel = consts.CHANNEL_CONN
@@ -323,31 +323,31 @@ class WSHandler(EventEmitter):
             self.send([packet])
     def send2Step(self, steps):
         packet = [{
-            channel: "/service/controller",
-            clientId: self.clientID,
-            data: {
-                id: 50,
-                type: "message",
-                gameid: self.gameID,
-                host: consts.ENDPOINT_URI,
-                content: JSON.dumps({
-                    sequence: steps
+            "channel": "/service/controller",
+            "clientId": self.clientID,
+            "data": {
+                "id": 50,
+                "type": "message",
+                "gameid": self.gameID,
+                "host": consts.ENDPOINT_URI,
+                "content": JSON.dumps({
+                    "sequence": steps
                 })
             },
-            id: str(self.msgID)
+            "id": str(self.msgID)
         }]
         self.msgID+=1
         self.send(packet)
     def sendFeedback(self, fun, learning, recommend, overall):
         packet = [{
-            channel: "/service/controller",
-            clientId: self.clientID,
-            data: {
-                id: 11,
-                type: "message",
-                gameid: self.gameID,
-                host: consts.ENDPOINT_URI,
-                content: JSON.stringify({
+            "channel": "/service/controller",
+            "clientId": self.clientID,
+            "data": {
+                "id": 11,
+                "type": "message",
+                "gameid": self.gameID,
+                "host": consts.ENDPOINT_URI,
+                "content": JSON.stringify({
                     totalScore: self.kahoot.totalScore,
                     fun: fun,
                     learning: learning,
@@ -356,7 +356,7 @@ class WSHandler(EventEmitter):
                     nickname: self.kahoot.name
                 })
             },
-            id: str(self.msgID)
+            "id": str(self.msgID)
         }]
         self.msgID += 1
         time.sleep(1)
@@ -368,25 +368,25 @@ class WSHandler(EventEmitter):
             return
         self.msgID += 1
         packet = {
-            channel: "/service/controller",
-            clientId: self.clientID,
-            data: {
-                cid: cid,
-                content: JSON.dumps({
-                    device: {
-                        userAgent: UserAgent(),
-                        screen: {
-                            width: 2000,
-                            height: 1000
+            "channel": "/service/controller",
+            "clientId": self.clientID,
+            "data": {
+                "cid": cid,
+                "content": JSON.dumps({
+                    "device": {
+                        "userAgent": UserAgent(),
+                        "screen": {
+                            "width": 2000,
+                            "height": 1000
                         }
                     }
                 }),
-                gameid: self.gameID,
-                host: "kahoot.it",
-                type: "relogin"
+                "gameid": self.gameID,
+                "host": "kahoot.it",
+                "type": "relogin"
             },
-            ext: {},
-            id: str(self.msgID)
+            "ext": {},
+            "id": str(self.msgID)
         }
         self.send([packet])
     def login(self, name, team):
@@ -397,34 +397,34 @@ class WSHandler(EventEmitter):
         self.name = name
         self.msgID+=1
         joinPacket = [{
-            channel: "/service/controller",
-            clientId: self.clientID,
-            data: {
-                content: '{"device":{"userAgent":"' + UserAgent() + '","screen":{"width":1280,"height":800}}}',
-                gameid: self.gameID,
-                host: consts.ENDPOINT_URI,
-                name: self.name,
-                type: "login"
+            "channel": "/service/controller",
+            "clientId": self.clientID,
+            "data": {
+                "content": '{"device":{"userAgent":"' + UserAgent() + '","screen":{"width":1280,"height":800}}}',
+                "gameid": self.gameID,
+                "host": consts.ENDPOINT_URI,
+                "name": self.name,
+                "type": "login"
             },
-            ext: {},
-            participantUserId: None,
-            id: str(self.msgID)
+            "ext": {},
+            "participantUserId": None,
+            "id": str(self.msgID)
         }]
         self.send(joinPacket)
         if self.kahoot.gamemode == "team":
             joinPacket2 = [{
-                channel: "/service/controller",
-                clientId: self.clientID,
-                data: {
-                    content: JSON.dumps(team && type(team.append) == type(chr) && team if len(team) else ["Player 1", "Player 2", "Player 3", "Player 4"]),
-                    gameid: self.gameID,
-                    host: consts.ENDPOINT_URI,
-                    id: 18,
-                    type: "message"
+                "channel": "/service/controller",
+                "clientId": self.clientID,
+                "data": {
+                    "content": JSON.dumps(team and type(team.append) == type(chr) and team if len(team) else ["Player 1", "Player 2", "Player 3", "Player 4"]),
+                    "gameid": self.gameID,
+                    "host": consts.ENDPOINT_URI,
+                    "id": 18,
+                    "type": "message"
                 },
-                ext: {},
-                participantUserId: None,
-                id: str(self.msgID)
+                "ext": {},
+                "participantUserId": None,
+                "id": str(self.msgID)
             }]
             self.msgID+=1
             self.send(joinPacket2)

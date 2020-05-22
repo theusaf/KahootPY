@@ -26,8 +26,8 @@ async def requestToken(sessionID,callback,proxy):
             uri = proxy + "/https://" + consts.ENDPOINT_URI + consts.TOKEN_ENDPOINT + sessionID + "/?" + math.floor(time.time() * 1000)
     _uri = urllib.parse(uri)
     options = {
-        port: consts.ENDPOINT_PORT,
-        headers: {
+        "port": consts.ENDPOINT_PORT,
+        "headers": {
             "user-agent": UserAgent(),
             "host": (proxy and uri.hostname) or "kahoot.it",
             "referer": "https://kahoot.it/",
@@ -137,8 +137,8 @@ def requestChallenge(sessionID,callback,proxy):
             uri = proxy + "/https://" + consts.ENDPOINT_URI + consts.CHALLENGE_ENDPOINT + "/pin/" + sessionID
     _uri = urllib.parse(uri)
     options = {
-        port: consts.ENDPOINT_PORT,
-        headers: {
+        "port": consts.ENDPOINT_PORT,
+        "headers": {
             "user-agent": UserAgent(),
             "host": (proxy and uri.hostname) or "kahoot.it",
             "referer": "https://kahoot.it/",
@@ -155,10 +155,10 @@ def requestChallenge(sessionID,callback,proxy):
         return callback(None,e,None)
     try:
         inf = {
-            twoFactorAuth: False,
-            gameMode: data.challenge.type,
-            kahootData: data.kahoot,
-            rawChallengeData: data.challenge
+            "twoFactorAuth": False,
+            "gameMode": data.challenge.type,
+            "kahootData": data.kahoot,
+            "rawChallengeData": data.challenge
         }.update(data.challenge.game_options)
         return callback(True,inf)
     except InvalidChallenge as e:
