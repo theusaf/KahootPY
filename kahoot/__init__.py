@@ -94,7 +94,7 @@ def _defineListeners(client,socket):
         if client.hasTwoFactorAuth:
             client.emit("2Step")
     def QuizDataHandle(quizInfo):
-        client.quiz = Assets.Quiz(quizInfo.name,quizInfo.type,quizInfo.qCount,client,quizInfo.totalQ,quizInfo.quizQuestionAnswers,quizInfo)
+        client.quiz = Assets.Quiz(quizInfo.get("name"),quizInfo["type"],quizInfo.get("qCount"),client,quizInfo["totalQ"],quizInfo["quizQuestionAnswers"],quizInfo)
         client.emit("quizStart")
         client.emit("quiz")
     def QuizUpdateHandle(updateInfo):

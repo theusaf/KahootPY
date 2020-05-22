@@ -165,6 +165,7 @@ class WSHandler(EventEmitter):
         o = None
         try:
             l = round(((time.time() * 1000) - packet["ext"]["timesync"]["tc"] - packet["ext"]["timesync"]["p"]) / 2)
+            o = packet["ext"]["timesync"]["ts"] - packet["ext"]["timesync"]["tc"] - l;
             self.timesync = {
                 "tc": round(time.time() * 1000),
                 "l": l,
@@ -360,12 +361,12 @@ class WSHandler(EventEmitter):
                 "gameid": self.gameID,
                 "host": consts.ENDPOINT_URI,
                 "content": JSON.stringify({
-                    totalScore: self.kahoot.totalScore,
-                    fun: fun,
-                    learning: learning,
-                    recommend: recommend,
-                    overall: overall,
-                    nickname: self.kahoot.name
+                    "totalScore": self.kahoot.totalScore,
+                    "fun": fun,
+                    "learning": learning,
+                    "recommend": recommend,
+                    "overall": overall,
+                    "nickname": self.kahoot.name
                 })
             },
             "id": str(self.msgID)
