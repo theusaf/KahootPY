@@ -419,12 +419,12 @@ class WSHandler(EventEmitter):
         }]
         time.sleep(0.5)
         self.send(joinPacket)
-        if self.kahoot["gamemode"] == "team":
+        if self.kahoot.gamemode == "team":
             joinPacket2 = [{
                 "channel": "/service/controller",
                 "clientId": self.clientID,
                 "data": {
-                    "content": JSON.dumps(team and type(team) == type(list()) and team if len(team) else ["Player 1", "Player 2", "Player 3", "Player 4"]),
+                    "content": JSON.dumps(team if type(team) == type(list()) else team if len(team) else ["Player 1", "Player 2", "Player 3", "Player 4"]),
                     "gameid": self.gameID,
                     "host": consts.ENDPOINT_URI,
                     "id": 18,
@@ -435,6 +435,7 @@ class WSHandler(EventEmitter):
                 "id": str(self.msgID)
             }]
             self.msgID+=1
+            time.sleep(0.5)
             self.send(joinPacket2)
     def close(self):
         self.connected = False

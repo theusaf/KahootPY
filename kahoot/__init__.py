@@ -33,12 +33,13 @@ class client(EventEmitter):
             if self.sessionID[0] == "0":
                 return False
             def _(resolvedToken,gamemode):
-                self.gamemode = content.get("gamemode") or "classic"
+                self.gamemode = content.get("gameMode") or "classic"
                 self.hasTwoFactorAuth = content.get("twoFactorAuth") or False
                 self.usesNamerator = content.get("namerator") or False
                 self.token = resolvedToken
                 self._wsHandler = WSHandler(self.sessionID,self.token,self)
                 _defineListeners(self,self._wsHandler)
+                thread.start()
             try:
                 content = token.resolve(self.sessionID,self.proxies)
             except Exception:
@@ -51,21 +52,14 @@ class client(EventEmitter):
         self.name = name
         self.team = team
         def _(resolvedToken,content):
-            self.gamemode = content.get("gamemode") or "classic"
+            self.gamemode = content.get("gameMode") or "classic"
             self.hasTwoFactorAuth = content.get("twoFactorAuth") or False
             self.usesNamerator = content.get("namerator") or False
             self.token = resolvedToken
             self._wsHandler = WSHandler(self.sessionID,self.token,self)
             _defineListeners(self,self._wsHandler)
             thread = threading.Thread(target=self._wsHandler.ws.run_forever)
-            def fname():
-                print("ready!")
-            self._wsHandler.on("ready",fname)
             thread.start()
-            #def loop():
-            #    while True:
-            #        time.sleep(1)
-            #threading.Thread(target=loop).start()
         try:
             content = token.resolve(self.sessionID,_,self.proxies)
         except Exception:
