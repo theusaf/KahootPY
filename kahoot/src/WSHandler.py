@@ -322,9 +322,9 @@ class WSHandler(EventEmitter):
                 self.emit("joined")
             else:
                 if data.get("data").get("content"):
-                    cont = JSON.dumps(data.get("data").get("content"))
-                    if self.dataHandler[data.get("data").get("id")]:
-                        self.dataHandler[data["data"]["id"]](data,cont)
+                    cont = JSON.loads(data.get("data").get("content"))
+                    if self.dataHandler.get(str(data.get("data").get("id"))):
+                        self.dataHandler.get(str(data["data"]["id"]))(data,cont)
         if data.get("ext") and data["channel"] == consts.CHANNEL_CONN and not data.get("advice") and self.ready:
             packet = self.getPacket(data)[0]
             packet["connectionType"] = "websocket"

@@ -4,7 +4,7 @@ class Quiz():
         self.name = name
         self.type = type
         self.answerCount = answerCount
-        self.currentQuestion = null
+        self.currentQuestion = None
         self.questions = []
         self.questionCount = amount
         self.answerCounts = answers
@@ -14,13 +14,13 @@ class Question():
     def __init__(self,rawEvent,client):
         self.client = client
         self.quiz = client.quiz
-        self.index = rawEvent.questionIndex
-        self.timeLeft = rawEvent.timeLeft
-        self.type = rawEvent.type
-        self.usesStoryBlocks = rawEvent.useStoryBlocks
-        self.ended = false
-        self.quiz.questions.push(self)
-        self.number = self.quiz.questions.length
+        self.index = rawEvent["questionIndex"]
+        self.timeLeft = rawEvent["timeLeft"]
+        self.type = rawEvent["type"]
+        self.usesStoryBlocks = rawEvent.get("useStoryBlocks")
+        self.ended = False
+        self.quiz.questions.append(self)
+        self.number = len(self.quiz.questions)
         self.quiz.currentQuestion = self
         self.rawEvent = rawEvent
     def answer(self,number,secret):
@@ -35,17 +35,17 @@ class QuestionEndEvent():
             self.quiz = client.quiz
             self.question = self.quiz.questions[-1]
             self.question.ended = True
-            self.correctAnswers = rawEvent.correctAnswers
+            self.correctAnswers = rawEvent.get("correctAnswers")
             self.correctAnswer = self.correctAnswers[0]
-            self.text = rawEvent.text
-            self.correct = rawEvent.correct
-            self.nemesis = Nemesis(rawEvent.nemesis)
-            self.points = rawEvent.points
-            self.rank = rawEvent.rank
-            self.total = rawEvent.totalScore
-            self.streak = rawEvent.pointsData.answerStreakPoints.streakLevel
+            self.text = rawEvent.get("text")
+            self.correct = rawEvent["correct"]
+            self.nemesis = Nemesis(rawEvent.get("nemesis"))
+            self.points = rawEvent["points"]
+            self.rank = rawEvent["rank"]
+            self.total = rawEvent["totalScore"]
+            self.streak = rawEvent["pointsData"]["answerStreakPoints"]["streakLevel"]
             self.rawEvent = rawEvent
-        except JoinedMidGameError as e:
+        except Exception as e:
             return e
 
 class QuestionSubmitEvent():
@@ -58,9 +58,9 @@ class QuestionSubmitEvent():
 class Nemesis():
     def __init__(self,rawData):
         if rawData:
-            self.name = rawData.name
-            self.score = rawData.totalScore
-            self.isGhost = rawData.isGhost
+            self.name = rawData.get("name")
+            self.score = rawData.get("totalScore")
+            self.isGhost = rawData.get("isGhost")
             self.exists = True
             self.rawEvent = rawData
         else:
@@ -72,16 +72,16 @@ class Nemesis():
 
 class FinishTextEvent():
     def __init__(self,rawEvent):
-        self.metal = rawEvent.metal
+        self.metal = rawEvent["metal"]
         self.rawEvent = rawEvent
 
 class QuizFinishEvent():
     def __init__(self,rawEvent,client):
         self.client = client
         self.quiz = client.quiz
-        self.players = rawEvent.playerCount
-        self.quizID = rawEvent.quizID
-        self.rank = rawEvent.rank
-        self.correct = rawEvent.correct
-        self.incorrect = rawEvent.incorrect
+        self.players = rawEvent["playerCount"]
+        self.quizID = rawEvent["quizID"]
+        self.rank = rawEvent["rank"]
+        self.correct = rawEvent["correct"]
+        self.incorrect = rawEvent["incorrect"]
         self.rawEvent = rawEvent

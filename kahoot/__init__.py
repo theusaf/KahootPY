@@ -106,8 +106,9 @@ def _defineListeners(client,socket):
             client.emit("2Step")
     def QuizDataHandle(quizInfo):
         client.quiz = Assets.Quiz(quizInfo.get("name"),quizInfo["type"],quizInfo.get("qCount"),client,quizInfo["totalQ"],quizInfo["quizQuestionAnswers"],quizInfo)
-        client.emit("quizStart")
-        client.emit("quiz")
+        print(client.quiz)
+        client.emit("quizStart",client.quiz)
+        client.emit("quiz",client.quiz)
     def QuizUpdateHandle(updateInfo):
         client.quiz.currentQuestion = Assets.Question(updateInfo,client)
         client.emit("question",client.quiz.currentQuestion)
@@ -151,4 +152,3 @@ def _defineListeners(client,socket):
     socket.on("finishText",FinishTextHandle)
     socket.on("finish",FinishHandle)
     socket.on("feedback",FeedbackHandle)
-    print("Finished Adding Event Listeners")
