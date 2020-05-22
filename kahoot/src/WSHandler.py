@@ -7,6 +7,10 @@ import time
 import math
 from random import random as random
 import json as JSON
+try:
+    import thread
+except ImportError:
+    import _thread as thread
 
 class WSHandler(EventEmitter):
     def __init__(self,session,token,kahoot):
@@ -22,17 +26,23 @@ class WSHandler(EventEmitter):
         self.name = ""
         self.firstQuizEvent = False
         self.lastReceivedQ = None
-        def on_message(m):
-            self.message(m)
-        def on_close():
+        def on_message(ws,m):
+            self.message(m,ws)
+        def on_close(ws):
+            print("close")
             self.connected = False
             self.close()
-        def on_error(e):
+        def on_error(ws,e):
+            print(e)
             self.connected = False
             self.emit("error",e)
             self.close()
-        def on_open():
-            self.open()
+        def on_open(ws):
+            self.open(ws)
+            def run(*args):
+                time.sleep(1)
+            thread.start_new_thread(run, ())
+        # websocket.enableTrace(True)
         self.ws = websocket.WebSocketApp(consts.WSS_ENDPOINT + str(session) + "/" + token,on_message=on_message,on_error=on_error,on_close=on_close)
         self.ws.on_open = on_open
         self.ws.run_forever(sslopt={"check_hostname": False})
@@ -225,7 +235,7 @@ class WSHandler(EventEmitter):
             print("SND: " + JSON.dumps(msg))
         if self.connected:
             try:
-                self.ws.send(JSON.dumps(msg))
+                self._ws.send(JSON.dumps(msg))
             except Exception:
                 pass
     def sendSubmit(self, questionChoice, question):
@@ -237,7 +247,8 @@ class WSHandler(EventEmitter):
         packet = self.getSubmitPacket(questionChoice,question)
         self.send(packet)
         self.emit("questionSubmit")
-    def open(self):
+    def open(self,ws):
+        self._ws = ws
         self.connected = True
         self.emit("open")
         r = [{
@@ -265,7 +276,8 @@ class WSHandler(EventEmitter):
         self.msgID+=1
         self.send(r)
         pass
-    def message(self, msg):
+    def message(self, msg, ws):
+        self._ws = ws
         if self.kahoot.loggingMode:
             print("DWN: " + msg)
         data = JSON.loads(msg)[0]
