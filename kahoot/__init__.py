@@ -132,8 +132,11 @@ def _defineListeners(client,socket):
         client.emit("finish",e)
     def FeedbackHandle():
         client.emit("feedback")
+    def LockedHandle():
+        client.emit("locked")
     socket.on("error",errorHandle)
     socket.on("invalidName",invalidNameHandle)
+    socket.on("locked",LockedHandle)
     socket.on("2StepFail",TwoFailHandle)
     socket.on("2StepSuccess",TwoSuccessHandle)
     socket.on("2Step",TwoHandle)

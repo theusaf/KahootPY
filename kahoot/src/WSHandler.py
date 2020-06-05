@@ -319,6 +319,11 @@ class WSHandler(EventEmitter):
             elif data.get("data").get("type") == "loginResponse":
                 self.kahoot.cid = data["data"]["cid"]
                 self.emit("joined")
+            elif data.get("data").get("type") == "status":
+                if data["data"].get("status") == "LOCKED":
+                    self.emit("locked")
+                    self.close()
+                    self.ws.close()
             else:
                 if data.get("data").get("content"):
                     cont = JSON.loads(data.get("data").get("content"))
