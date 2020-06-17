@@ -86,8 +86,8 @@ class client(EventEmitter):
 def _defineListeners(client,socket):
     def errorHandle(e):
         client.emit("handshakeFailed",e)
-    def invalidNameHandle():
-        client.emit("invalidName")
+    def invalidNameHandle(err):
+        client.emit("invalidName",err)
     def TwoFailHandle():
         client.emit("2StepFail")
     def TwoSuccessHandle():

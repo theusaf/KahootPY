@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="KahootPY",
-    version="0.1.2",
+    version="0.1.3",
     author="theusaf",
     author_email="theusafyt@gmail.com",
     description="A python package to interact with Kahoot!",

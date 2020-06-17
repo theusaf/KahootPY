@@ -310,7 +310,7 @@ class WSHandler(EventEmitter):
         elif data.get("data"):
             if data.get("data").get("error"):
                 if data.get("data").get("type") and data.get("data").get("type") == "loginResponse":
-                    return self.emit("invalidName")
+                    return self.emit("invalidName",data["data"]["error"])
                 try:
                     self.emit("error",data["data"]["error"])
                 except Exception as e:
