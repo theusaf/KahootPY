@@ -66,7 +66,6 @@ class client(EventEmitter):
         try:
             content = token.resolve(self.sessionID,_,self.proxies)
         except Exception:
-            print(ConnectError)
             return False
     def answer2Step(self,steps):
         self._wsHandler.send2Step(steps)

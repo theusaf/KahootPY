@@ -1,5 +1,5 @@
 from kahoot import client
-pin = 7612977
+pin = 473403
 bot = client()
 # bot.loggingMode = True
 bot.join(pin,"KahootPY",["a","b","c"])
