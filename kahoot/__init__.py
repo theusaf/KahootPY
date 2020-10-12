@@ -48,6 +48,7 @@ class Client(EventEmitter):
         self.quiz = None
         self.loggingMode = False
         self.lastEvent = (None,None)
+        self._timesync = {}
         self.twoFactorResetTime = None
         self.disconnectReason = None
         # Import modules
@@ -82,7 +83,7 @@ class Client(EventEmitter):
     async def answerTwoFactorAuth(self,steps=[0,1,2,3]):
         if self.gameid[0] == "0":
             raise "Cannot answer two steps in Challenges"
-        wait = time.time() * 1000 - self.twoFactorResetTime
+        wait = int(time.time() * 1000) - self.twoFactorResetTime
         if wait < 250:
             await asyncio.sleep((250 - wait) / 1000)
         promise = loop.create_future()

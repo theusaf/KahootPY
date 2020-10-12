@@ -67,7 +67,7 @@ def requestToken(pin,client):
         },
         "host": "kahoot.it",
         "protocol": "https:",
-        "path": f"/reserve/session/{pin}/?{time.time() * 1000}"
+        "path": f"/reserve/session/{pin}/?{int(time.time() * 1000)}"
     }
     proxyOptions = await client.defaults["proxy"](options)
     # proxy options either returns the options listed above

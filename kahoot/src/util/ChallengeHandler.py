@@ -36,7 +36,7 @@ def Injector(self):
         except Exception:
             pass
         question = self.challengeData["kahoot"]["questions"][self.data["questionIndex"]]
-        tick = time.time() * 1000 - self.receivedQuestionTime
+        tick = int(time.time() * 1000) - self.receivedQuestionTime
         if self.defaults["options"]["ChallengeGetFullScore"] or self.defaults["options"]["ChallengeWaitForInput"] or not self.challengeData["challenge"]["game_options"]["question_timer"]:
             tick = 1
         pqc = copy.copy(self.challengeData["progress"]["questions"])
@@ -180,7 +180,7 @@ def Injector(self):
                             "playerId": self.name,
                             "points": int(correct) * score,
                             "reactionTime": tick,
-                            "receivedTime": time.time() * 1000,
+                            "receivedTime": int(time.time() * 1000),
                             "text": text
                         }
                     ],
@@ -242,7 +242,7 @@ def Injector(self):
                 "type": qtype,
                 "isCorrect": correct,
                 "text": text,
-                "receivedTime": time.time() * 1000,
+                "receivedTime": int(time.time() * 1000),
                 "pointsQuestion": pointsQuestion,
                 "points": score,
                 "correctAnswers": c,
@@ -353,7 +353,7 @@ def Injector(self):
                 self.next()
         elif phase == "answer":
             q = self.challengeData["kahoot"]["questions"][self.data["questionIndex"]]
-            self.receivedQuestionTime = time.time() * 1000
+            self.receivedQuestionTime = int(time.time() * 1000)
             self.data["phase"] = "leaderboard"
             if not q:
                 self.disconnectReason = "Unknown Error"
@@ -595,7 +595,7 @@ def Injector(self):
             pass
         return
     self.challengeData = inf
-    if inf["challenge"]["endTime"] <= time.time() * 1000 or len(inf["challenge"]["challengeUsersList"]) >= inf["challenge"]["maxPlayers"]:
+    if inf["challenge"]["endTime"] <= int(time.time() * 1000) or len(inf["challenge"]["challengeUsersList"]) >= inf["challenge"]["maxPlayers"]:
         self.disconnectReason = "Challenge Ended/Full"
         try:
             self.socket.close()
