@@ -1,7 +1,8 @@
-class LiveBaseMessage():
+class LiveBaseMessage(dict):
     def __init__(self,client,channel,data):
-        self.channel = channel
-        self.clientId = client["clientId"]
+        super().__init__()
+        self["channel"] = channel
+        self["clientId"] = client["clientId"]
         if data:
-            self.data = data
-            self.ext = {}
+            self["data"] = data
+            self["ext"] = {}

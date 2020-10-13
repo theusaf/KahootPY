@@ -43,6 +43,9 @@ class Client(EventEmitter):
         self.gameid = None
         self.socket = None
         self.settings = None
+        self.questionStartTime = None
+        self.reconnectRecovery = None
+        self.feedbackTime = None
         self.connected = False
         self.name = None
         self.quiz = None

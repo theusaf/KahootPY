@@ -1,7 +1,8 @@
 import time
 
-class LiveTimesyncData():
+class LiveTimesyncData(dict):
     def __init__(self,n,l,o):
+        super().__init__()
         if str(n) == "1":
             self.timesync = {
                 "l": l,

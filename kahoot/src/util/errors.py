@@ -15,3 +15,7 @@ class TeamJoinError(Exception):
 class SendFailException(Exception):
     def __init__(self,data):
         super().__init__(data)
+
+class AnswerFailException(Exception):
+    def __init__(self,data):
+        super().__init__(data)
