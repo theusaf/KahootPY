@@ -18,7 +18,7 @@ import .util.errors
 import .util.token as token
 from user_agent import generate_user_agent as UserAgent
 
-class Client(EventEmitter):
+class client(EventEmitter):
     def __init__(self,options={}):
         super().__init__()
         self.defaults = {}

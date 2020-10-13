@@ -1,9 +1,11 @@
 # About
-KahootPY is a library to interact with the Kahoot API. KahootPY supports joining and interacting with quizzes and ~challenges (not yet)~.
+KahootPY is a library to interact with the Kahoot API. KahootPY supports joining and interacting with quizzes and challenges.
 
 # Installation
 
 `pip install -U KahootPY`
+
+# Usage
 
 ```py
 from kahoot import client
@@ -11,10 +13,14 @@ bot = client()
 bot.join(12345,"KahootPY")
 def joinHandle():
   pass
-bot.on("joined",joinHandle)
+bot.on("Joined",joinHandle)
 ```
 
-Since this is basically a translation of JavaScript to Python, expect issues and bugs.
+# Documentation:
+See [kahoot.js-updated](https://github.com/theusaf/kahoot.js-updated/blob/master/Documentation.md). The API is very similar with some differences listed below:
 
-Documentation:
-See [kahoot.js-updated](https://github.com/theusaf/kahoot.js-updated/blob/master/Documentation.md). The API is very similar, besides having no Promises.
+Instead of `Promise`s, KahootPY methods return `Futures`
+
+Proxying works similarly, but only accepts finished requests or request options.
+
+Finished requests must have a `headers` object and a `text` property
