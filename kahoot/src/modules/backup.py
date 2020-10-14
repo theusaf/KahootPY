@@ -1,7 +1,8 @@
 import asyncio
-import loop
 import json
 from ..assets.LiveRequestData import LiveRequestData
+
+loop = asyncio.get_event_loop()
 
 def main(self):
     async def requestRecoveryData():

@@ -1,7 +1,8 @@
 import asyncio
-import loop
 from ..assets.LiveReconnectPacket import LiveReconnectPacket
 from ..util.errors import JoinFailError as JoinFailError
+
+loop = asyncio.get_event_loop()
 
 def main(self):
     async def reconnect(pin=self.gameid,cid=self.cid):

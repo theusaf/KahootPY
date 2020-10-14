@@ -1,10 +1,11 @@
 import asyncio
-import loop
 import json
 import time
 import math
 from ..assets.LiveQuestionAnswer import LiveQuestionAnswer
 from ..util.errors import AnswerFailException
+
+loop = asyncio.get_event_loop()
 
 def main(self):
     async def answer(choice):

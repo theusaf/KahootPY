@@ -1,9 +1,10 @@
 import asyncio
 import time
 import json
-import loop
 from ..assets.LiveFeedbackPacket import LiveFeedbackPacket
 from ..util.errors import SendFailException
+
+loop = asyncio.get_event_loop()
 
 def main(self):
     def handler(message):
