@@ -1,7 +1,6 @@
 from pymitter import EventEmitter
-from .util.copyfunc import copy_func
-from .util.sleep import sleep
-from .util.ChallengeHandler import Client as ChallengeHandler
+from .src.util.copyfunc import copy_func
+from .src.util.ChallengeHandler import ChallengeHandler
 import threading
 import time
 import sys
@@ -11,24 +10,25 @@ import functools
 import importlib
 import asyncio
 import json as JSON
-import loop
 from websocket import WebSocketApp as ws
 from numbers import Number
-import .util.errors
-import .util.token as token
+from .src.util.errors import *
+from .src.util.token import *
 from user_agent import generate_user_agent as UserAgent
+
+loop = asyncio.get_event_loop()
 
 class client(EventEmitter):
     def __init__(self,options={}):
         super().__init__()
         self.defaults = {}
         # Assign the default values
-        for i in Client._defaults:
-            if callable(Client._defaults[i]):
+        for i in client._defaults:
+            if callable(client._defaults[i]):
                 # TODO: Check if this is needed.
-                self.defaults[i] = copy_func(Client._defaults[i])
+                self.defaults[i] = copy_func(client._defaults[i])
                 continue
-            self.defaults[i] = copy.deepcopy(Client._defaults[i])
+            self.defaults[i] = copy.deepcopy(client._defaults[i])
         # Assign values from options
         self.defaults["options"].update(options.get("options") or {})
         self.defaults["modules"].update(options.get("modules") or {})
@@ -56,7 +56,7 @@ class client(EventEmitter):
         self.disconnectReason = None
         # Import modules
         for mod in self.defaults["modules"]:
-            if self.defaults["modules"][mod] or self.defaults["modules"][mod] == None:
+            if self.defaults["modules"].get(mod) or self.defaults["modules"].get(mod) == None:
                 try:
                     f = getattr(importlib.import_module(".modules." + mod),"main")
                     f(self)
@@ -183,11 +183,12 @@ class client(EventEmitter):
     async def _createHandshake(self):
         if self.socket and self.socket["readyState"] == 1 and self.settings:
             return self.settings
-        data = await token.resolve(self.gameid,self)
+        data = await resolve(self.gameid,self)
         promise = loop.create_future()
         if data.get("data") and not data["data"].get("isChallenge"):
             # Either a url or a websocket object
-            options = Client._defaults["wsproxy"](f"wss://kahoot.it/cometd/{self.gameid}/{data["token"]}")
+            token = data["token"]
+            options = Client._defaults["wsproxy"](f"wss://kahoot.it/cometd/{self.gameid}/{token}")
             if isinstance(options.get("readyState"),Number) and callable(options.get("close")):
                 self.socket = options
             else:
@@ -271,7 +272,7 @@ def _proxy():
 def _wsproxy(url):
     return url
 
-Client._defaults = {
+client._defaults = {
     "modules": {
         "extraData": True,
         "feedback": True,

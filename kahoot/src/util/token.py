@@ -4,14 +4,15 @@ import re
 import base64
 import math
 import requests
-import loop
 import urllib
 import time
 import asyncio
 import json as JSON
 from user_agent import generate_user_agent as UserAgent
 
-def requestChallenge(pin,client):
+loop = asyncio.get_event_loop()
+
+async def requestChallenge(pin,client):
     options = {
         "headers": {
             "User-Agent": UserAgent(),
@@ -56,7 +57,7 @@ def requestChallenge(pin,client):
     except Exception as e:
         raise e
 
-def requestToken(pin,client):
+async def requestToken(pin,client):
     options = {
         "headers": {
             "User-Agent": UserAgent(),

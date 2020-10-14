@@ -9,9 +9,10 @@ import re
 import threading
 import urllib
 import copy
-import .errors
-import loop
+from .errors import *
 from .emoji import regex as emoji
+
+loop = asyncio.get_event_loop()
 
 invalid = re.compile(r"[~`!@#$%^&*(){}[\];:\"'<,.>?/\\|\-_+=]",re.M)
 
@@ -44,7 +45,7 @@ def Injector(self):
         pointsQuestion = pqc[0]["pointsQuestion"] or False
         if int(self.defaults["options"]["ChallengeScore"] > 1500):
             self.defaults["options"]["ChallengeScore"] = 1500
-        else if int(self.defaults["options"]["ChallengeScore"] < 0):
+        elif int(self.defaults["options"]["ChallengeScore"] < 0):
             self.defaults["options"]["ChallengeScore"] = 0
         timeScore = int(self.defaults["options"]["ChallengeScore"]) or (math.round((1-(tick/question.get("time"))/2)) * 1000) * question.get("pointsMultiplier") * int(pointsQuestion)
         if self.data["streak"] == -1:
@@ -280,7 +281,8 @@ def Injector(self):
                 "challengeId": "",
                 "isOnlyNonPointGameBlockKahoot": False
             }
-            data = await self._httpRequest(f"https://kahoot.it/rest/challenges/{self.challengeData["challenge"]["challengeId"]}/answers",{
+            challengeId = self.challengeData["challenge"]["challengeId"]
+            data = await self._httpRequest(f"https://kahoot.it/rest/challenges/{challengeId}/answers",{
                 "headers": {
                     "Content-Type": "application/json",
                     "Content-Length": len(JSON.dumps(payload).encode("utf-8"))
@@ -471,8 +473,8 @@ def Injector(self):
     async def _send(m):
         if m.get("data") and m["data"].get("type") == "login":
             self.name = str(m["data"]["name"])
-
-            data = await self._httpRequest(f"https://kahoot.it/rest/challenges/{self.challengeData["challenge"]["challengeId"]}/join/?nickname={urllib.parse.quote(self.name)}",{
+            challengeId = self.challengeData["challenge"]["challengeId"]
+            data = await self._httpRequest(f"https://kahoot.it/rest/challenges/{challengeId}/join/?nickname={urllib.parse.quote(self.name)}",{
                 "method": "POST"
             },True)
             if data.get("error"):
@@ -577,7 +579,8 @@ def Injector(self):
 
     async def _getProgress(q=None):
         if q is None:
-            return this._httpRequest(f"https://kahoot.it/rest/challenges/{self.challengeData["challenge"]["challengeId"]}/progress/?upToQuestion={q}",None,True)
+            challengeId = self.challengeData["challenge"]["challengeId"]
+            return this._httpRequest(f"https://kahoot.it/rest/challenges/{challengeId}/progress/?upToQuestion={q}",None,True)
         else:
             data = await this._httpRequest(f"https://kahoot.it/rest/challenges/pin/{this.gameid}",None,True)
             data2 = await this._httpRequest(f"https://kahoot.it/rest/challenges/{data.challenge.challengeId}/progress",None,True)
@@ -606,7 +609,7 @@ def Injector(self):
         self.emit("HandshakeComplete")
 
 class ChallengeHandler(EventEmitter):
-    __init__(self,client,content):
+    def __init__(self,client,content):
         super().__init__()
         client.challengeData = content
         Injector(client)
