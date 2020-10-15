@@ -34,7 +34,7 @@ def main(self):
                     self.socket.close()
                 except Exception:
                     pass
-    self.handlers.HandshakeChecker = HandshakeChecker
+    self.handlers["HandshakeChecker"] = HandshakeChecker
 
     def PingChecker(message):
         if message["channel"] == "/meta/connect" and message.get("ext"):
@@ -52,7 +52,7 @@ def main(self):
 
     def TwoFactor(message):
         if self.settings and not self.settings["twoFactorAuth"]:
-            del self.handlers.get("TwoFactor")
+            del self.handlers["TwoFactor"]
         if message["channel"] == "/service/player" and message.get("data"):
             if message["data"].get("id") == 53:
                 self.twoFactorResetTime = int(time.time() * 1000)

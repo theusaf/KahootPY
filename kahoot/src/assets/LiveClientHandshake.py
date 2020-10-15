@@ -7,7 +7,7 @@ class LiveClientHandshake():
             self["ext"] = {
                 "ack": m["ext"]["ack"]
             }
-            self["clientId"] = c["clientId"]
+            self["clientId"] = c.clientId
         elif str(s) == "1":
             self["advice"] = {
                 "timeout": 0
@@ -17,7 +17,7 @@ class LiveClientHandshake():
                 "ack": 0,
                 "timesync": LiveTimesyncData(n,m["l"],m["o"])
             }
-            self["clientId"] = c["clientId"]
+            self["clientId"] = c.clientId
         else:
             self["advice"] = {
                 "interval": 0,

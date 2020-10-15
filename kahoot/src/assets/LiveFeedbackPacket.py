@@ -6,10 +6,10 @@ class LiveFeedbackPacket(LiveBaseMessage):
         super().__init__(client,"/service/controller",{
             "id": 11,
             "type": "message",
-            "gameid": client["gameid"],
+            "gameid": client.gameid,
             "host": "kahoot.it",
             "content": JSON.dumps({
-                "totalScore": (client.get("data") and client["data"]["totalScore"]) or 0,
+                "totalScore": (client.data and client.data["totalScore"]) or 0,
                 "fun": fun,
                 "learning": learning,
                 "recommend": recommend,

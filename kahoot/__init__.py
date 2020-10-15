@@ -49,6 +49,7 @@ class client(EventEmitter):
         self.connected = False
         self.name = None
         self.quiz = None
+        self.clientId = None
         self.loggingMode = False
         self.lastEvent = (None,None)
         self._timesync = {}
@@ -58,11 +59,11 @@ class client(EventEmitter):
         for mod in self.defaults["modules"]:
             if self.defaults["modules"].get(mod) or self.defaults["modules"].get(mod) == None:
                 try:
-                    f = getattr(importlib.import_module(".modules." + mod),"main")
+                    f = getattr(importlib.import_module(".src.modules." + mod,"kahoot"),"main")
                     f(self)
                 except Exception:
                     pass
-        m = getattr(importlib.import_module(".modules.main"),"main")
+        m = getattr(importlib.import_module(".src.modules.main","kahoot"),"main")
         m(self)
 
         self.userAgent = UserAgent()

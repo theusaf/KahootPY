@@ -5,7 +5,7 @@ class LiveReconnectPacket(LiveBaseMessage):
     def __init__(self,client,pin,cid):
         super().__init__(client,"/service/controller",{
             "gameid": str(pin),
-            "host": "kahoot/it",
+            "host": "kahoot.it",
             "content": json.dumps({
                 "device": {
                     "userAgent": client.userAgent,
