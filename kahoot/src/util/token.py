@@ -5,7 +5,6 @@ import base64
 import math
 import requests
 import urllib
-import time
 import asyncio
 import json as JSON
 from user_agent import generate_user_agent as UserAgent

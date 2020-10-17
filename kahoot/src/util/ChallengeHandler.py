@@ -291,12 +291,10 @@ def Injector(self):
             },false,JSON.dumps(payload))
             if empty is None:
                 return event
-            def waiter():
-                self._emit("TimeOver")
-                self._emit("QuestionEnd",event)
-                self.next()
-            self.ti = threading.Timer(1,waiter)
-            self.ti.start()
+            await asyncio.sleep(1)
+            self._emit("TimeOver")
+            self._emit("QuestionEnd",event)
+            self.next()
 
     self.answer = answer
 
@@ -315,10 +313,8 @@ def Injector(self):
                 "name": kahoot.get("title"),
                 "quizQuestionAnswers": qqa
             })
-            def waiter():
-                self.next()
-            t = threading.Timer(5,waiter)
-            t.start()
+            await asyncio.sleep(5)
+            self.next()
         elif phase == "ready":
             try:
                 inf = await this._getProgress(self.data["questionIndex"])
@@ -336,10 +332,8 @@ def Injector(self):
                     "quizQuestionAnswers": self.quiz["quizQuestionAnswers"]
                 })
                 self.emit("QuestionReady",q)
-                def waiter():
-                    self.next()
-                t = threading.Timer(5,waiter)
-                t.start()
+                await asyncio.sleep(5)
+                self.next()
             except Exception:
                 if self.data.get("hitError"):
                     try:
@@ -370,10 +364,8 @@ def Injector(self):
                 if self.data["questionIndex"] == len(self.challengeData["kahoot"]["questions"][self.data["questionIndex"]]):
                     self.data["phase"] = "close"
                 if self.challengeData["challenge"]["game_options"]["question_timer"] and not self.defaults["options"]["ChallengeWaitForInput"]:
-                    def waiter():
-                        self.next()
-                    t = threading.Timer(10,waiter)
-                    t.start()
+                    await asyncio.sleep(10)
+                    self.next()
                 return
             if self.challengeData["challenge"]["game_options"]["question_timer"] and not self.defaults["options"]["ChallengeWaitForInput"]:
                 async def waiter():
@@ -399,16 +391,12 @@ def Injector(self):
             if self.data["questionIndex"] == len(self.challengeData.kahoot.questions):
                 self.data["phase"] = "close"
                 if self.defaults["options"]["ChallengeAutoContinue"]:
-                    def waiter():
-                        self.next()
-                    t = threading.Timer(5,waiter)
-                    t.start()
+                    await asyncio.sleep(5)
+                    self.next()
                 return
             if self.defaults["options"]["ChallengeAutoContinue"]:
-                def waiter():
-                    self.next()
-                t = threading.Timer(5,waiter)
-                t.start()
+                await asyncio.sleep(5)
+                self.next()
         elif phase == "close":
             self.data["phase"] = "complete"
             self._emit("QuizEnd",self.data["finalResult"])
@@ -416,10 +404,8 @@ def Injector(self):
                 "podiumMedalType": ["gold","silver","bronze"][self._getRank() - 1] if self._getRank() <= 3 else None
             })
             if self.defaults["options"]["ChallengeAutoContinue"]:
-                def waiter():
-                    self.next()
-                t = threading.Timer(30,waiter)
-                t.start()
+                await asyncio.sleep(30)
+                self.next()
         elif phase == "complete":
             self.stop = True
             self.disconnectReason = "Session Ended"
@@ -440,7 +426,8 @@ def Injector(self):
 
     self.leave = leave
 
-    def joined(cid):
+    async def joined(cid):
+        await asyncio.sleep(0.1)
         self.socket.on_message(JSON.dumps([
             {
                 "channel": "/service/controller",
@@ -450,8 +437,6 @@ def Injector(self):
                 }
             }
         ]))
-        t = threading.Timer(0.1,waiter)
-        t.start()
 
         def _send():
             raise "This error should not appear unless you are trying to do something silly."
@@ -483,10 +468,8 @@ def Injector(self):
             self.cid = data["playerCid"]
             joined(self.cid)
             if self.defaults["options"]["ChallengeAutoContinue"]:
-                def waiter():
-                    self.next()
-                t = threading.Timer(5,waiter)
-                t.start()
+                await asyncio.sleep(5)
+                self.next()
             return self.challengeData
 
     self._send = _send

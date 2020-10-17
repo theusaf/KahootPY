@@ -170,16 +170,14 @@ class client(EventEmitter):
         self._send(self.classes["LiveJoinTeamPacket"](self,team),waiter)
         return promise
 
-    def leave(self,safe=False):
+    async def leave(self,safe=False):
         self._send(self.classes["LiveLeavePacket"](self))
         if not safe:
             self.disconnectReason = "Client Left"
-        def close():
-            if not self.socket:
-                return
-            self.socket.close()
-        t = threading.Timer(0.5,close)
-        t.start()
+        await asyncio.sleep(0.5)
+        if not self.socket:
+            return
+        self.socket.close()
 
     async def _createHandshake(self):
         if self.socket and self.socket["readyState"] == 1 and self.settings:
@@ -241,12 +239,10 @@ class client(EventEmitter):
             if callback:
                 id = str(self.messageId)
                 self.waiting[id] = callback
-                def waiter():
-                    if self.waiting.get(id):
-                        callback(None)
-                        del self.waiting[id]
-                t = threading.Timer(10e3,waiter)
-                t.start()
+                await asyncio.sleep(10)
+                if self.waiting.get(id):
+                    callback(None)
+                    del self.waiting[id]
 
     def _message(self,message):
         if self.loggingMode:
