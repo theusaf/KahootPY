@@ -187,8 +187,8 @@ class client(EventEmitter):
         if data.get("data") and not data["data"].get("isChallenge"):
             # Either a url or a websocket object
             token = data["token"]
-            options = Client._defaults["wsproxy"](f"wss://kahoot.it/cometd/{self.gameid}/{token}")
-            if isinstance(options.get("readyState"),Number) and callable(options.get("close")):
+            options = client._defaults["wsproxy"](f"wss://kahoot.it/cometd/{self.gameid}/{token}")
+            if type(options) is not str and isinstance(options.get("readyState"),Number) and callable(options.get("close")):
                 self.socket = options
             else:
                 self.socket = ws(options)
@@ -196,6 +196,7 @@ class client(EventEmitter):
             self.socket = ChallengeHandler(self,data)
         def onclose():
             self.emit("Disconnect",self.disconnectReason or "Lost Connection")
+            self.socket.close = None
         def onopen():
             self._send(self.classes["LiveClientHandshake"](0))
         def onmessage(message):
@@ -207,6 +208,8 @@ class client(EventEmitter):
                 self.socket.close()
             except Exception:
                 pass
+            finally:
+                self.socket.close = None
         def HandshakeComplete():
             promise.set_result(data.get("data"))
         def HandshakeFailed():
@@ -219,8 +222,10 @@ class client(EventEmitter):
         self.on("HandshakeFailed",HandshakeFailed)
         return promise
 
-    async def _send(self,message,callback):
-        if self.socket and self.socket["readyState"] == 1:
+    async def _send(self,message,callback=None):
+        if self.loggingMode:
+            print("SEND: " + JSON.dumps(message))
+        if self.socket and callable(self.socket.close):
             if message == None:
                 raise "empty_message"
             promise = loop.create_future()
@@ -234,8 +239,6 @@ class client(EventEmitter):
                 message["id"] = str(self.messageId)
                 await self.socket.send(JSON.dumps([message]))
                 promise.set_result(None)
-            if self.loggingMode:
-                print("SEND: " + JSON.dumps(message))
             if callback:
                 id = str(self.messageId)
                 self.waiting[id] = callback
@@ -250,7 +253,7 @@ class client(EventEmitter):
         for i in self.handlers:
             self.handlers[i](JSON.loads(message)[0])
 
-    def _emit(self,evt,payload):
+    def _emit(self,evt,payload=None):
         if not self.quiz:
             self.quiz = {}
         if payload and payload.get("quizQuestionAnswers"):
@@ -264,7 +267,7 @@ class client(EventEmitter):
         else:
             self.emit(evt,payload)
 
-def _proxy():
+async def _proxy(options):
     pass
 def _wsproxy(url):
     return url

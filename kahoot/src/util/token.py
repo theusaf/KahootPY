@@ -30,13 +30,19 @@ async def requestChallenge(pin,client):
     # - headers (list of headers)
     # - text (text response)
     r = None
-    if proxyOptions.get("headers") and proxyOptions.get("text"):
-        # Proxied request
-        r = proxyOptions
-        def json():
-            return JSON.loads(r["text"])
-        r.json = json
-    else:
+    try:
+        if proxyOptions.get("headers") and proxyOptions.get("text"):
+            # Proxied request
+            r = proxyOptions
+            def json():
+                return JSON.loads(r["text"])
+            r.json = json
+        else:
+            if proxyOptions:
+                options.update(proxyOptions)
+            url = (options.get("protocol") or "https:") + "//" + (options.get("host") or "kahoot.it") + (options.get("port") or "") + options.get("path")
+            r = requests.request(options.get("method") or "GET",url,headers=options.get("headers"))
+    except Exception:
         if proxyOptions:
             options.update(proxyOptions)
         url = (options.get("protocol") or "https:") + "//" + (options.get("host") or "kahoot.it") + (options.get("port") or "") + options.get("path")
@@ -75,13 +81,19 @@ async def requestToken(pin,client):
     # - headers (list of headers)
     # - text (text response)
     r = None
-    if proxyOptions.get("headers") and proxyOptions.get("text"):
-        # Proxied request
-        r = proxyOptions
-        def json():
-            return JSON.loads(r["text"])
-        r.json = json
-    else:
+    try:
+        if proxyOptions.get("headers") and proxyOptions.get("text"):
+            # Proxied request
+            r = proxyOptions
+            def json():
+                return JSON.loads(r["text"])
+            r.json = json
+        else:
+            if proxyOptions:
+                options.update(proxyOptions)
+            url = (options.get("protocol") or "https:") + "//" + (options.get("host") or "kahoot.it") + (options.get("port") or "") + options.get("path")
+            r = requests.request(options.get("method") or "GET",url,headers=options.get("headers"))
+    except Exception:
         if proxyOptions:
             options.update(proxyOptions)
         url = (options.get("protocol") or "https:") + "//" + (options.get("host") or "kahoot.it") + (options.get("port") or "") + options.get("path")
@@ -158,7 +170,7 @@ def concatTokens(headerToken,challengeToken):
     return token
 
 async def resolve(pin,client):
-    if math.isnan(pin):
+    if math.isnan(int(pin)):
         raise "Missing PIN"
     if str(pin[0]) == "0":
         return requestChallenge(pin,client)
