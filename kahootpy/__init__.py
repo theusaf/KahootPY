@@ -188,12 +188,14 @@ class client(EventEmitter):
             # Either a url or a websocket object
             token = data["token"]
             options = client._defaults["wsproxy"](f"wss://kahoot.it/cometd/{self.gameid}/{token}")
-            if type(options) is not str and isinstance(options.get("readyState"),Number) and callable(options.get("close")):
+            if type(options) is not str and callable(options.get("close")):
                 self.socket = options
             else:
                 self.socket = ws(options)
         else:
             self.socket = ChallengeHandler(self,data)
+        thread = threading.Thread(target=self.socket.run_forever)
+        thread.start()
         def onclose():
             self.emit("Disconnect",self.disconnectReason or "Lost Connection")
             self.socket.close = None
