@@ -103,6 +103,7 @@ async def requestToken(pin,client):
     try:
         data = r.json()
         token = r.headers.get("x-kahoot-session-token")
+        token = decodeBase64(token)
         return {
             "token": token,
             "data": data

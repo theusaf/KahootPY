@@ -59,11 +59,11 @@ class client(EventEmitter):
         for mod in self.defaults["modules"]:
             if self.defaults["modules"].get(mod) or self.defaults["modules"].get(mod) == None:
                 try:
-                    f = getattr(importlib.import_module(".src.modules." + mod,"kahoot"),"main")
+                    f = getattr(importlib.import_module(".src.modules." + mod,"kahootpy"),"main")
                     f(self)
                 except Exception:
                     pass
-        m = getattr(importlib.import_module(".src.modules.main","kahoot"),"main")
+        m = getattr(importlib.import_module(".src.modules.main","kahootpy"),"main")
         m(self)
 
         self.userAgent = UserAgent()
@@ -188,7 +188,7 @@ class client(EventEmitter):
             # Either a url or a websocket object
             token = data["token"]
             options = client._defaults["wsproxy"](f"wss://kahoot.it/cometd/{self.gameid}/{token}")
-            if type(options) is not str and callable(options.get("close")):
+            if type(options) is not str and callable(options.close):
                 self.socket = options
             else:
                 self.socket = ws(options)
@@ -198,7 +198,6 @@ class client(EventEmitter):
         thread.start()
         def onclose():
             self.emit("Disconnect",self.disconnectReason or "Lost Connection")
-            self.socket.close = None
         def onopen():
             self._send(self.classes["LiveClientHandshake"](0))
         def onmessage(message):
@@ -210,8 +209,6 @@ class client(EventEmitter):
                 self.socket.close()
             except Exception:
                 pass
-            finally:
-                self.socket.close = None
         def HandshakeComplete():
             promise.set_result(data.get("data"))
         def HandshakeFailed():
@@ -227,7 +224,7 @@ class client(EventEmitter):
     async def _send(self,message,callback=None):
         if self.loggingMode:
             print("SEND: " + JSON.dumps(message))
-        if self.socket and callable(self.socket.close):
+        if self.socket and not self.socket.closed:
             if message == None:
                 raise "empty_message"
             promise = loop.create_future()
