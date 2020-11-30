@@ -20,5 +20,5 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
     keywords=["kahoot","bot"],
-    install_requires=["websocket-client","pymitter","requests","user_agent"],
+    install_requires=["websockets","pymitter","requests","user_agent"],
 )
