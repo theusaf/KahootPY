@@ -40,9 +40,8 @@ def main(self):
                 elif state == 7:
                     self._emit("Feedback")
     self.handlers["recovery"] = handler
-    if self.defaults.get("reconnect"):
-        def handler():
-            if self.reconnectRecovery:
-                self.requestRecoveryData()
-        self.on("Joined",handler)
-        self.once("NameAccept",self.requestRecoveryData)
+    def handler():
+        if self.reconnectRecovery:
+            self.requestRecoveryData()
+    self.on("Joined",handler)
+    self.once("NameAccept",self.requestRecoveryData)

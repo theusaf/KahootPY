@@ -24,29 +24,8 @@ async def requestChallenge(pin,client):
         "protocol": "https:",
         "path": f"/rest/challenges/pin/{pin}"
     }
-    proxyOptions = await client.defaults["proxy"](options)
-    # proxy options either returns the options listed above
-    # or returns an object with:
-    # - headers (list of headers)
-    # - text (text response)
-    r = None
-    try:
-        if proxyOptions.get("headers") and proxyOptions.get("text"):
-            # Proxied request
-            r = proxyOptions
-            def json():
-                return JSON.loads(r["text"])
-            r.json = json
-        else:
-            if proxyOptions:
-                options.update(proxyOptions)
-            url = (options.get("protocol") or "https:") + "//" + (options.get("host") or "kahoot.it") + (options.get("port") or "") + options.get("path")
-            r = requests.request(options.get("method") or "GET",url,headers=options.get("headers"))
-    except Exception:
-        if proxyOptions:
-            options.update(proxyOptions)
-        url = (options.get("protocol") or "https:") + "//" + (options.get("host") or "kahoot.it") + (options.get("port") or "") + options.get("path")
-        r = requests.request(options.get("method") or "GET",url,headers=options.get("headers"))
+    url = (options.get("protocol") or "https:") + "//" + (options.get("host") or "kahoot.it") + (options.get("port") or "") + options.get("path")
+    r = requests.request(options.get("method") or "GET",url,headers=options.get("headers"))
     try:
         data = r.json()
         out = {
@@ -75,29 +54,8 @@ async def requestToken(pin,client):
         "protocol": "https:",
         "path": f"/reserve/session/{pin}/?{int(time.time() * 1000)}"
     }
-    proxyOptions = await client.defaults["proxy"](options)
-    # proxy options either returns the options listed above
-    # or returns an object with:
-    # - headers (list of headers)
-    # - text (text response)
-    r = None
-    try:
-        if proxyOptions.get("headers") and proxyOptions.get("text"):
-            # Proxied request
-            r = proxyOptions
-            def json():
-                return JSON.loads(r["text"])
-            r.json = json
-        else:
-            if proxyOptions:
-                options.update(proxyOptions)
-            url = (options.get("protocol") or "https:") + "//" + (options.get("host") or "kahoot.it") + (options.get("port") or "") + options.get("path")
-            r = requests.request(options.get("method") or "GET",url,headers=options.get("headers"))
-    except Exception:
-        if proxyOptions:
-            options.update(proxyOptions)
-        url = (options.get("protocol") or "https:") + "//" + (options.get("host") or "kahoot.it") + (options.get("port") or "") + options.get("path")
-        r = requests.request(options.get("method") or "GET",url,headers=options.get("headers"))
+    url = (options.get("protocol") or "https:") + "//" + (options.get("host") or "kahoot.it") + (options.get("port") or "") + options.get("path")
+    r = requests.request(options.get("method") or "GET",url,headers=options.get("headers"))
     if not r.headers.get("x-kahoot-session-token"):
         raise "Invalid PIN"
     try:
@@ -112,47 +70,21 @@ async def requestToken(pin,client):
         raise e
 
 def solveChallenge(challenge):
-    solved = ""
-    anti_whitespace = re.compile(r'(\u0009|\u2003)',re.M)
-    challenge = anti_whitespace.sub("",challenge)
-    challenge = re.sub("this ","this",challenge)
-    anti_dot = re.compile(r' *\. *',re.M)
-    challenge = anti_dot.sub(".",challenge);
-    anti_paren1 = re.compile(r' *\( *',re.M)
-    anti_paren2 = re.compile(r' *\) *',re.M)
-    challenge = anti_paren1.sub("(",challenge)
-    challenge = anti_paren2.sub(")",challenge)
-    challenge = re.sub("console.","",challenge);
-    challenge = re.sub("this\.angular\.isObject\(offset\)", "true",challenge);
-    challenge = re.sub("this\.angular\.isString\(offset\)", "true",challenge);
-    challenge = re.sub("this\.angular\.isDate\(offset\)", "true",challenge);
-    challenge = re.sub("this\.angular\.isArray\(offset\)", "true",challenge);
-    challenge = _challengeToPython(challenge)
-    edict={}
-    exec(challenge,globals(),edict)
-    return edict["fin"]
-# Convert the JS to Python
-def _challengeToPython(challenge):
-    challenge = re.sub(r"\.call\(this,","(",challenge)
-    challenge = re.sub(r";\s*","\n",challenge)
-    challenge = re.compile('function',re.M).sub("def",challenge)
-    challenge = re.compile(r'\)\{',re.M).sub("):\n\t",challenge)
-    challenge = re.sub("true","True",challenge)
-    challenge = re.compile(r"char\.charCodeAt\(0\)").sub("ord(char)",challenge)
-    challenge = re.compile(r"String\.fromCharCode").sub("chr",challenge)
-    challenge = re.sub(r"var\s+offset","offset",challenge)
-    challenge = re.compile(r"if\(True\)").sub("\tif(True):\n\t\t",challenge)
-    challenge = re.compile("return",re.M).sub("\treturn",challenge)
-    challenge = re.compile(r"\s+def\(char",re.M).sub("\n\tdef repl(char",challenge)
-    challenge = re.compile(r"return\s+_",re.M).sub("#",challenge)
-    challenge = re.compile(r"message\):",re.M).sub("message):\n\tdef log(a,b,c):\n\t\tpass\n",challenge)
-    # challenge = "def log(a,b,c):\n\tpass\n" + challenge
-    call = re.search(r"decode\(.*\)$",challenge,re.M).group(0)
-    challenge = re.compile(r"decode\(.*\)$",re.M).sub("",challenge)
-    challenge = re.compile(r"^\}\)?",re.M).sub("",challenge)
-    challenge = re.compile(r"\)\n\n",re.M).sub(")\n\tres=\"\"\n\tfor i in range(0,len(message)):\n\t\tres+=repl(message[i],i)\n\treturn res",challenge)
-    challenge += "\nfin=" + call
-    return challenge
+    # src: https://github.com/msemple1111/kahoot-hack/blob/master/main.py
+    s1 = challenge.find('this,') + 7
+    s2 = challenge.find("');")
+    message = challenge[s1:s2]
+    s1 = challenge.find('var offset') + 13
+    s2 = challenge.find('; if')
+    offset = str("".join(challenge[s1:s2].split()))
+    offset = eval(offset)
+    def repl(char, position):
+        return chr((((ord(char)*position) + offset)% 77)+ 48)
+    res = ""
+    for i in range(0,len(message)):
+        res+=repl(message[i],i)
+    return res
+
 # Decode the token header
 def decodeBase64(base):
     try:
@@ -173,7 +105,7 @@ def concatTokens(headerToken,challengeToken):
 async def resolve(pin,client):
     if math.isnan(int(pin)):
         raise "Missing PIN"
-    if str(pin[0]) == "0":
+    if str(pin)[0] == "0":
         return requestChallenge(pin,client)
     data = await requestToken(pin,client)
     token2 = solveChallenge(data["data"]["challenge"])

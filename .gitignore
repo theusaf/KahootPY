@@ -6,3 +6,4 @@ test.py
 build
 KahootPY.egg-info
 dist
+KahootPY/foo
