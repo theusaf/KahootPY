@@ -9,21 +9,15 @@ def main(self):
         self.quiz = None
     self.on("GameReset",GameResetHandler)
     def QuestionStartHandler(event):
-        def typ(self):
-            return self["type"]
-        def index(self):
-            return self["questionIndex"]
         event.update({
             "answer": self.answer,
-            "type": property(typ),
-            "index": property(index)
+            "type": event["type"],
+            "index": event["questionIndex"]
         })
     self.on("QuestionStart",QuestionStartHandler)
     def QuizStartHandler(event):
-        def questionCount(self):
-            return len(self.quizQuestionAnswers)
         event.update({
-            "questionCount": property(questionCount)
+            "questionCount": len(self.quiz["quizQuestionAnswers"])
         })
         try:
             self.quiz.update(event)
@@ -31,13 +25,9 @@ def main(self):
             pass
     self.on("QuizStart",QuizStartHandler)
     def QuestionReadyHandler(event):
-        def typ(self):
-            return self["gameBlockType"]
-        def index(self):
-            return self["questionIndex"]
         event.update({
-            "type": property(typ),
-            "index": property(index)
+            "type": event["gameBlockType"],
+            "index": event["questionIndex"]
         })
         try:
             self.quiz["currentQuestion"].update(event)

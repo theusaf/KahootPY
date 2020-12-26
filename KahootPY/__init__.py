@@ -86,7 +86,7 @@ class KahootClient(EventEmitter):
             self.quiz = {}
         if payload and payload.get("quizQuestionAnswers"):
             self.quiz["quizQuestionAnswers"] = payload["quizQuestionAnswers"]
-        if payload and payload.get("questionIndex"):
+        if payload and not payload.get("questionIndex") is None:
             if not self.quiz.get("currentQuestion"):
                 self.quiz["currentQuestion"] = {}
             self.quiz["currentQuestion"].update(payload)
