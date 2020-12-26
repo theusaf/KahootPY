@@ -6,11 +6,10 @@ def main(self):
         self.data["totalScore"] = 0
         self.data["rank"] = 0
         self.data["streak"] = 0
-        self.quiz = None
+        self.quiz = {}
     self.on("GameReset",GameResetHandler)
     def QuestionStartHandler(event):
         event.update({
-            "answer": self.answer,
             "type": event["type"],
             "index": event["questionIndex"]
         })
