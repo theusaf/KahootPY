@@ -45,4 +45,4 @@ class LiveQuestionAnswer(LiveBaseMessage):
                 },
                 "type": type
             })
-        super().__init__(client,"/service/controller",content)
+        super().__init__("/service/controller",content)

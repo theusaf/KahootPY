@@ -3,7 +3,7 @@ import json
 
 class LiveTwoStepAnswer(LiveBaseMessage):
     def __init__(self,client,sequence):
-        super().__init__(client,"/service/controller",{
+        super().__init__("/service/controller",{
             "id": 50,
             "type": "message",
             "gameid": client.gameid,

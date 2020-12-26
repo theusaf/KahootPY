@@ -3,7 +3,7 @@ import json as JSON
 
 class LiveFeedbackPacket(LiveBaseMessage):
     def __init__(self,client,fun,learning,recommend,overall):
-        super().__init__(client,"/service/controller",{
+        super().__init__("/service/controller",{
             "id": 11,
             "type": "message",
             "gameid": client.gameid,

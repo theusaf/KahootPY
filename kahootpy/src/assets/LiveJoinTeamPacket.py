@@ -3,7 +3,7 @@ import json
 
 class LiveJoinTeamPacket(LiveBaseMessage):
     def __init__(self,client,team):
-        super().__init__(client,"/service/controller",{
+        super().__init__("/service/controller",{
             "gameid": client.gameid,
             "host": "kahoot.it",
             "content": json.dumps(team),

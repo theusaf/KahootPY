@@ -3,7 +3,7 @@ import json
 
 class LiveReconnectPacket(LiveBaseMessage):
     def __init__(self,client,pin,cid):
-        super().__init__(client,"/service/controller",{
+        super().__init__("/service/controller",{
             "gameid": str(pin),
             "host": "kahoot.it",
             "content": json.dumps({
