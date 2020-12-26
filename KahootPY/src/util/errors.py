@@ -19,3 +19,6 @@ class SendFailException(Exception):
 class AnswerFailException(Exception):
     def __init__(self,data):
         super().__init__(data)
+
+class InvalidPINException(Exception):
+    pass
