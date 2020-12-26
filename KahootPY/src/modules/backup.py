@@ -42,6 +42,8 @@ def main(self):
     self.handlers["recovery"] = handler
     def handler():
         if self.reconnectRecovery:
-            self.requestRecoveryData()
+            loop.create_task(self.requestRecoveryData())
     self.on("Joined",handler)
-    self.once("NameAccept",self.requestRecoveryData)
+    def rrd():
+        loop.create_task(self.requestRecoveryData())
+    self.once("NameAccept",rrd)

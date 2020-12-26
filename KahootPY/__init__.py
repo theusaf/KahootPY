@@ -3,6 +3,7 @@ import asyncio
 import importlib
 import ssl
 import json
+import inspect
 from pymitter import EventEmitter
 from aiocometd import Client
 from numbers import Number
@@ -19,10 +20,12 @@ class KahootClient(EventEmitter):
         self.handlers = {}
         self.loggingMode = False
         self.name = None
+        self.reconnectRecovery = None
         self.settings = {}
         self.socket = None
         self.twoFactorResetTime = None
         self.userAgent = UserAgent()
+        self.quiz = {}
         for module in ("answer","backup","extraData","feedback","gameReset","main","nameAccept","podium","questionEnd","questionReady","questionStart","quizEnd","quizStart","teamAccept","teamTalk","timeOver"):
             f = getattr(importlib.import_module(f".src.modules.{module}","KahootPY"),"main")
             f(self)
@@ -53,7 +56,11 @@ class KahootClient(EventEmitter):
             d = json.dumps(message)
             print(f"RECV: {d}")
         for i in self.handlers:
-            self.handlers[i](message)
+            if inspect.iscoroutinefunction(self.handlers[i]):
+                loop = asyncio.get_event_loop()
+                loop.create_task(self.handlers[i](message))
+            else:
+                self.handlers[i](message)
     async def _send(self,message,callback=None):
         if self.loggingMode:
             d = json.dumps(message)
@@ -72,3 +79,18 @@ class KahootClient(EventEmitter):
                 callback(True)
             else:
                 callback(False)
+    async def leave(self,safe=False):
+        await self._send(self.classes["LiveLeavePacket"](self))
+    def _emit(self,evt,payload=None):
+        if not self.quiz:
+            self.quiz = {}
+        if payload and payload.get("quizQuestionAnswers"):
+            self.quiz["quizQuestionAnswers"] = payload["quizQuestionAnswers"]
+        if payload and payload.get("questionIndex"):
+            if not self.quiz.get("currentQuestion"):
+                self.quiz["currentQuestion"] = {}
+            self.quiz["currentQuestion"].update(payload)
+        if not self.connected:
+            self.lastEvent = (evt,payload)
+        else:
+            self.emit(evt,payload)
